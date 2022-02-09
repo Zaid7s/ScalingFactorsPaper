@@ -1,0 +1,151 @@
+\begin{thebibliography}{22}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{\discretionary{}{}{}https://doi.org/#1}\else
+  \providecommand{\doi}[1]{\discretionary{}{}{}\urlstyle{rm}\url{https://doi.org/#1}}\fi
+
+\bibitem[{Williamson(1980)}]{Williamson}
+Williamson, J., \enquote{Low-Storage Runge-Kutta Schemes,} \emph{Journal of
+  Computational Physics}, Vol.~35, No.~1, 1980, pp. 48 -- 56.
+\newblock \doi{https://doi.org/10.1016/0021-9991(80)90033-9}.
+
+\bibitem[{Yoon and Kwak(1990)}]{YoonLUSGS}
+Yoon, S., and Kwak, D., \enquote{Implicit Methods for the Navier-Stokes
+  Equations,} \emph{Computing Systems in Engineering}, Vol.~1, No.~2, 1990, pp.
+  535--547.
+\newblock \doi{https://doi.org/10.1016/0956-0521(90)90034-I},
+  \urlprefix\url{https://www.sciencedirect.com/science/article/pii/095605219090034I},
+  computational Technology for Flight Vehicles.
+
+\bibitem[{Rizzetta and Visbal(2005{\natexlab{a}})}]{A_Stable}
+Rizzetta, D.~P., and Visbal, M.~R., \enquote{Numerical Simulation of Separation
+  Control for Transitional Highly Loaded Low-Pressure Turbines,} \emph{AIAA
+  Journal}, Vol.~43, No.~9, 2005{\natexlab{a}}, pp. 1958--1967.
+\newblock \doi{10.2514/1.12376},
+  \urlprefix\url{https://doi.org/10.2514/1.12376}.
+
+\bibitem[{Hixon and Visbal()}]{HixonImplicit}
+Hixon, R., and Visbal, M., \emph{Comparison of High-Order Implicit Time
+  Marching Schemes for Unsteady Flow Calculations}, chapter and pages.
+\newblock \doi{10.2514/6.2007-4324},
+  \urlprefix\url{https://arc.aiaa.org/doi/abs/10.2514/6.2007-4324}.
+
+\bibitem[{Beam and Warming(1978)}]{Beam}
+Beam, R.~M., and Warming, R.~F., \enquote{An Implicit Factored Scheme for the
+  Compressible Navier-Stokes Equations,} \emph{AIAA Journal}, Vol.~16, No.~4,
+  1978, pp. 393--402.
+\newblock \doi{10.2514/3.60901},
+  \urlprefix\url{https://doi.org/10.2514/3.60901}.
+
+\bibitem[{Pulliam and Steger()}]{ARC3D}
+Pulliam, T., and Steger, J., \emph{Recent Improvements In Efficiency, Accuracy,
+  and Convergence for Implicit Approximate Factorization Algorithms}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1985-360},
+  \urlprefix\url{https://arc.aiaa.org/doi/abs/10.2514/6.1985-360}.
+
+\bibitem[{Anderson et~al.()Anderson, Thomas, and Rumsey}]{CFL3D}
+Anderson, W., Thomas, J., and Rumsey, C., \emph{Extension and Applications of
+  Flux-Vector Splitting to Unsteady Calculations on Dynamic Meshes}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1987-1152},
+  \urlprefix\url{https://arc.aiaa.org/doi/abs/10.2514/6.1987-1152}.
+
+\bibitem[{Kwak et~al.(1986)Kwak, Chang, Shanks, and Chakravarthy}]{INS3D}
+Kwak, D., Chang, J. L.~C., Shanks, S.~P., and Chakravarthy, S.~R., \enquote{A
+  Three-Dimensional Incompressible Navier-Stokes Flow Solver Using Primitive
+  Variables,} \emph{AIAA Journal}, Vol.~24, No.~3, 1986, pp. 390--396.
+\newblock \doi{10.2514/3.9279}, \urlprefix\url{https://doi.org/10.2514/3.9279}.
+
+\bibitem[{Yoon and Jameson(1988)}]{LUSGS}
+Yoon, S., and Jameson, A., \enquote{Lower-Upper Symmetric-Gauss-Seidel Method
+  for the Euler And Navier-Stokes Equations,} \emph{AIAA Journal}, Vol.~26,
+  No.~9, 1988, pp. 1025--1026.
+\newblock \doi{10.2514/3.10007},
+  \urlprefix\url{https://doi.org/10.2514/3.10007}.
+
+\bibitem[{Hixon(2019)}]{RDRP}
+Hixon, R., \enquote{Optimized Rational Dispersion Relation Preserving (R-DRP)
+  Method for High-Accuracy Flow Simulations,} \emph{AIAA Paper 2019-2956},
+  2019.
+\newblock \doi{10.2514/6.2019-2956}.
+
+\bibitem[{Rizzetta and Visbal(2005{\natexlab{b}})}]{FDL3DI_A}
+Rizzetta, D.~P., and Visbal, M.~R., \enquote{Numerical Simulation of Separation
+  Control for Transitional Highly Loaded Low-Pressure Turbines,} \emph{AIAA
+  Journal}, Vol.~43, No.~9, 2005{\natexlab{b}}, pp. 1958--1967.
+\newblock \doi{10.2514/1.12376},
+  \urlprefix\url{https://doi.org/10.2514/1.12376}.
+
+\bibitem[{Visbal and Gaitonde()}]{FDL3DI_B}
+Visbal, M., and Gaitonde, D., \emph{Computation of Aeroacoustic Fields on
+  General Geometries Using Compact Differencing and Filtering Schemes}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1999-3706},
+  \urlprefix\url{https://arc.aiaa.org/doi/abs/10.2514/6.1999-3706}.
+
+\bibitem[{Visbal and Gaitonde(2001)}]{FDL3DI_C}
+Visbal, M.~R., and Gaitonde, D.~V., \enquote{Very High-Order Spatially Implicit
+  Schemes for Computational Acoustics on Curvilinear Meshes,} \emph{Journal of
+  Computational Acoustics}, Vol.~09, No.~04, 2001, pp. 1259--1286.
+\newblock \doi{10.1142/S0218396X01000541},
+  \urlprefix\url{https://doi.org/10.1142/S0218396X01000541}.
+
+\bibitem[{Tam and Webb(1993)}]{DRP}
+Tam, C.~K., and Webb, J.~C., \enquote{Dispersion-Relation-Preserving Finite
+  Difference Schemes for Computational Acoustics,} \emph{Journal of
+  Computational Physics}, Vol. 107, No.~2, 1993, pp. 262--281.
+\newblock \doi{https://doi.org/10.1006/jcph.1993.1142},
+  \urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0021999183711423}.
+
+\bibitem[{Thomas(1949)}]{Thomas_Algo}
+Thomas, L.~H., \enquote{Elliptic Problems in Linear Difference Equations over a
+  Network,} \emph{Watson Science Computer Lab Report, Columbia University, New
+  York}, 1949.
+
+\bibitem[{Hixon et~al.()Hixon, Nallasamy, and Sawyer}]{GPT}
+Hixon, R., Nallasamy, M., and Sawyer, S., \emph{A Method for the Implementation
+  of Boundary Conditions in High-Accuracy Finite-Difference Schemes}, chapter
+  and pages.
+\newblock \doi{10.2514/6.2005-608},
+  \urlprefix\url{https://arc.aiaa.org/doi/abs/10.2514/6.2005-608}.
+
+\bibitem[{Hardin et~al.(1995)Hardin, Ristorcelli, and Tam}]{CAA1}
+Hardin, J.~C., Ristorcelli, J.~R., and Tam, C. K. W.~e., \enquote{{ICASE/LaRC
+  Workshop on Benchmark Problems in Computational Aeroacoustics (CAA)},}
+  \emph{NASA Conference Publication 3300, May 1995.}, 1995.
+
+\bibitem[{Tam et~al.(1997)Tam, Hardin, Aeronautics, Administration, and
+  University}]{CAA2}
+Tam, C., Hardin, J., Aeronautics, U. S.~N., Administration, S., and University,
+  F.~S., \emph{Second Computational Aeroacoustics (CAA) Workshop on Benchmark
+  Problems: Proceedings of a Workshop ... Held in Tallahassee, Florida,
+  November 4-5, 1996}, NASA conference publication, National Aeronautics and
+  Space Administration, Langley Research Center, 1997.
+\newblock \urlprefix\url{https://books.google.com.kw/books?id=68QhAQAAIAAJ}.
+
+\bibitem[{Dahl(2000)}]{CAA3}
+Dahl, M.~D., \enquote{Third Computational Aeroacoustics (CAA) Workshop on
+  Benchmark Problems,} 2000.
+
+\bibitem[{Thompson(1987)}]{Thompson1}
+Thompson, K.~W., \enquote{Time Dependent Boundary Conditions for Hyperbolic
+  Dystems,} \emph{Journal of Computational Physics}, Vol.~68, No.~1, 1987, pp.
+  1--24.
+\newblock \doi{https://doi.org/10.1016/0021-9991(87)90041-6},
+  \urlprefix\url{https://www.sciencedirect.com/science/article/pii/0021999187900416}.
+
+\bibitem[{Thompson(1990)}]{Thompson2}
+Thompson, K.~W., \enquote{Time-Dependent Boundary Conditions for Hyperbolic
+  Systems, II,} \emph{Journal of Computational Physics}, Vol.~89, 1990, pp.
+  439--461.
+
+\bibitem[{Kennedy and Carpenter(1997)}]{Kennedy_Carpt}
+Kennedy, C.~A., and Carpenter, M.~H., \enquote{Comparison of Several Numerical
+  Methods for Simulation of Compressible Shear Layers,} \emph{NASA Langley
+  Technical Report Server}, 1997.
+
+\end{thebibliography}
