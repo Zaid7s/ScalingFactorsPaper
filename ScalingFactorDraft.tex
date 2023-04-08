@@ -1,0 +1,966 @@
+\documentclass[conf]{new-aiaa}
+%\documentclass[journal]{new-aiaa} for journal papers
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+
+\usepackage[version=4]{mhchem}
+\usepackage{siunitx}
+\usepackage{longtable,tabularx}
+\setlength\LTleft{0pt} 
+\usepackage[table,xcdraw]{xcolor}
+
+\title{On the Efficiency of Higher-Order Implicit Solvers for Compressible Flow
+}
+
+\author{Zaid H. Sabri\footnote{Graduate Research Assistant, Mechanical, Industrial, and Manufacturing Engineering (MIME) Department, Member AIAA.}}
+\author{Ray Hixon\footnote{Professor, Mechanical, Industrial, and Manufacturing Engineering (MIME) Department, Senior Member AIAA.}}
+\author{Jeffrey Severino\footnote{Graduate Research Assistant, Mechanical, Industrial, and Manufacturing Engineering (MIME) Department, Member AIAA.}}
+\affil{University of Toledo, Toledo, OH, 43606}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+In Computational Fluid Dynamics, numerical schemes integrate the time derivative to advance a flow solution in time. 
+Explicit schemes, a time integration technique, can solve the Navier-Stokes equations at the expense of efficiency.
+On the other hand, traditional implicit methods which often achieve fast convergence rates, suffer through high computational work. 
+Implicit schemes can offer low costs per sub-iteration if coupled with low-order differencing stencils. 
+In this work, traditional implicit methods are used with high-order differencing stencils while reducing the computational cost. 
+High efficiency is achieved through fixing the implicit side of the time marching method to a low-order differencing stencil while using high-order stencils on the physics of the governing equation. 
+The resulting schemes are stable and validated on several benchmark problems.
+
+\end{abstract}
+
+\section{Nomenclature}
+
+{\renewcommand\arraystretch{1.0}
+\noindent\begin{longtable*}{@{}l @{\quad=\quad} l@{}}
+ADI & Alternating Direction Implicit \\
+CAA  & Computational Aeroacoustics \\
+CFL &    Courant-Friedrichs-Lewy \\
+DRP & Dispersion Relation Preserving \\
+LHS & Left Hand Side \\ 
+LU-SGS & Lower-Upper Symmetric Gauss-Seidel \\ 
+ODE & Ordinary Differential Equations \\
+ODI & One Direction Implicit \\
+RDRP & Rational Dispersion Relation Preserving \\
+RHS & Right Hand Side \\
+TriDi & Tridiagonal Matrix \\
+$\epsilon$ & Truncation Error \\
+$\nu$ & CFL \\
+$\sigma$ & Scaling Factor
+
+\end{longtable*}}
+
+\section{Introduction}
+\label{sec:Introdtion}
+\lettrine{C}{omputational} Fluid Dynamics (CFD) is the study of fluid mechanics that predicts fluid flows using digital computers. 
+To accomplish this goal, the analytic governing equations of fluid motion are discretized in space, resulting in a system of coupled ordinary differential equations (ODE), which must be integrated in the temporal direction to advance the flow solution in time. 
+Numerical integration schemes are used for this task; the effectiveness of those schemes depends on convergence, accuracy, and computational efficiency \cite{Williamson}.
+
+Starting with an initial state at time zero, given a boundary condition, the flow solution can be \textit{marched} one time-step to a time later and use a numerical scheme to evaluate the solution at that time.
+This process, known as time marching, can be used to obtain steady-state solutions for steady flow problems and time-accurate solutions for unsteady flow problems.
+There is one time step of interest in a time marching scheme for steady flow problems \cite{Pulliamm}. 
+The largest time step that can be taken while retaining a stable solution, stability limit.
+In contrast, the stability limit is not the only time step of interest for unsteady flow problems. 
+Unsteady problems are also concerned with the accuracy limit, the largest step that can be taken while retaining an accurate unsteady solution.
+
+The governing equations of fluid flows can be integrated by either explicit or implicit time marching methods. 
+Notable successes have been reported with the explicit schemes to solve the Euler equations for inviscid flows. 
+Explicit time marching is a numerical technique where the values of the coupled equations depend on the current time level. 
+However, it is commonly used in Computational Aeroacoustics (CAA) since the grid spacing is directly related to the propagation wavelength of waves of interest \cite{YoonLUSGS}. 
+The inviscid stability limit is related to the minimum time required for the fastest propagating wave to move from one grid point (the Courant-Friedrichs-Lewy (CFL) condition) when using explicit schemes. 
+Since the computational domain must be highly clustered near the body (to resolve the viscous boundary layer), the size of the time step which an explicit scheme can take is restricted by the CFL condition.
+
+The stability restriction on the allowable time step can be eliminated by using an A-stable or L-stable implicit time marching scheme.
+Implicit time marching schemes can allow large time steps \cite{A_Stable} at the price of sub-iterations to converge the solution at each time step.
+The fastest convergence rate may be attained by an unfactored implicit scheme that directly inverts a large block banded matrix \cite{HixonImplicit}. 
+Such a scheme is impractical in three dimensions because of the rapid increase of operations as the number of grid points increases leading to large storage requirements. 
+Much research has focused on indirect implicit methods to alleviate this obstacle.
+
+
+Beam and Warming \cite{Beam} developed a practical implicit scheme by approximately factorizing the implicit operator in delta form. 
+Their algorithm is also known as the alternating direction implicit (ADI) scheme because of the use of one-dimensional operators that alternate directions. 
+The ADI scheme has been one of the most popular implicit methods in CFD during the past decade. 
+%Widely disseminated codes such as ARC3D \cite{ARC3D}, CFL3D \cite{CFL3D}, and INS3D \cite{INS3D} are based on the ADI scheme.
+However, it can be shown that the ADI scheme is conditionally stable in three dimensions. 
+
+Yoon and Jameson derived another implicit algorithm, the Lower-Upper Symmetric-Gauss-Seidel method (LU- SGS), that does not require flux splitting for approximate Newton iteration \cite{LUSGS}. 
+LU-SGS does not require additional relaxation or factorization on planes of sweep and requires less computational work per iteration than most explicit schemes \cite{YoonLUSGS}.
+
+Both implicit methods described can be computationally expensive when using differencing stencils with high orders of accuracy. 
+In general, increasing the order of accuracy of a spatial differencing scheme will also improve its accuracy on a given grid. 
+However, the stencil size of the scheme must be increased to obtain a higher order of accuracy, and these large-stencil schemes can have marginal stability near computational boundaries \cite{RDRP}. 
+Low-Order differencing stencils result in an easy-to-solve matrix (due to the low number of diagonals).
+The higher-order difference, by contrast, results in an expensive matrix solver. 
+\textbf{Can the higher-order matrix be replaced with an easier-to-solve matrix while still keeping stability for an iterative steady-state solver?}
+
+In this work, one dimensional ADI (will be referred to as ODI throughout the work to avoid confusion) and LU-SGS implicit methods are used with high-order differencing stencils while reducing the computational cost. 
+High efficiency is achieved through fixing the implicit side of the time marching method to a low-order differencing stencil, while using high-order stencils on the physics of the governing equations. 
+%To retain stability, scaling factors must be multiplied by the low-order differencing stencil.
+%The value of the scaling factor depends on the differencing stencil and the type of boundaries used. 
+The developed schemes are stable and validated against several benchmark problems. 
+\section{Euler Equations and Implicit Algorithm}
+\label{sec:Euler}
+The Euler equations written in vector form are:
+\begin{equation}
+	\begin{split}
+		\label{eq:NS}
+  			\frac{\partial{Q}}{\partial{t}} + \frac{\partial{E}}{\partial{x}}~=~0
+	\end{split}
+\end{equation}
+where
+\begin{equation}
+	\begin{split}
+		\label{eq:Q_E_Vectors}
+  			Q~=&~\left\{\begin{matrix}
+  				\rho \\
+  				\rho u \\
+  				E_{tot}
+  			\end{matrix}\right\} \\
+  			E~=&~\left\{\begin{matrix}
+  				\rho u \\
+  				\rho u^2+p \\
+  				u(E_{tot}+p)
+  			\end{matrix}\right\}
+	\end{split}
+\end{equation}
+In the equation above $t$ is time, $\rho$ is density, $u$ is the velocity components in Cartesian coordinates $(x)$, $E_{tot}$ is the total energy, and $p$ is pressure defined using the equation of state:
+\begin{equation*}
+	p~=~\left(\gamma-1\right)\left(E_{tot}-\frac{1}{2}~\rho u^2	\right)
+\end{equation*} 
+Using the superscript $'n'$ to denote the current time level, and $'n+1'$ to denote the next time level, an implicit time marching scheme solves for the time derivative at the current time level using flow data at the next time level:
+\begin{equation}
+	\begin{split}
+		\label{eq:Implicit_Scheme}
+  			\frac{\partial{Q}}{\partial{t}} +\left(\frac{\partial{E}}{\partial{x}}\right)^{n+1}~=~0
+	\end{split}
+\end{equation}
+A subscript $'i'$ will be used as a grid point counter. Using first order time derivative, Eq. (\ref{eq:Implicit_Scheme}) becomes:
+\begin{equation}
+	\begin{split}
+		\label{eq:Implicit_Scheme_1st}
+  			\frac{Q_i^{n+1}-Q_i^{n}}{\Delta{t}} +\left(\frac{\partial{E}}{\partial{x}}\right)^{n+1}_i~=~0
+	\end{split}
+\end{equation}
+An iteration procedure ($'k'$ denotes the iteration counter) can be defined in order to solve Eq. (\ref{eq:Implicit_Scheme_1st}):
+\begin{equation}
+	\label{eq:TS_Q_E}
+	\begin{split}
+	Q_i^{n+1, k+1}~=&~Q_i^{n+1, k}+\Delta{Q}_i \\
+	E_i^{n+1, k+1}~=&~E_i^{n+1, k} + \left(\frac{\partial{E}}{\partial{Q}} \right)^{n+1, k}_i\Delta{Q}_i
+	\end{split}
+\end{equation}
+The flow equation are written at the new iteration level $k+1$ as:
+\begin{equation}
+	\begin{split}
+		\label{eq:New_Iteration_Level}
+  			\frac{\left(Q_i^{n+1, k}+\Delta{Q}_i\right)-Q_i^n}{\Delta{t}}+\frac{\partial}{\partial{x}}\left(E_i^{n+1, k} + \left(\frac{\partial{E}}{\partial{Q}} \right)^{n+1, k}_i\Delta{Q}_i\right)~=~0
+	\end{split}
+\end{equation}
+and Eq. (\ref{eq:New_Iteration_Level}) is rewritten as:
+\begin{equation}
+	\begin{split}
+		\label{eq:NS_DeltaForm}
+  			\left[\Delta{Q}+\Delta{t}\cdot\frac{\partial}{\partial{x}}\left(\left(\frac{\partial{E}}{\partial{Q}} \right)_i^{n+1,k}\Delta{Q} \right)\right]~=~-\Delta{t}\left\{RHS\right\}_i^{n+1, k}
+	\end{split}
+\end{equation}
+The equation above represents the change in the flow variable $\Delta{Q_i}$ at each grid point $i$, during the interval from time $n\Delta{t}$ to time $(n+1)\Delta{t}$. The right hand side of the equation represents a finite difference approximation to the complete governing:
+\begin{equation*}
+	\left\{RHS\right\}_i^{n+1, k}~=~\left(\frac{Q_i^{n+1, k}-Q_i^n}{\Delta{t}}+\frac{\partial}{\partial{x}}\left(E_i^{n+1, k} \right)\right)
+\end{equation*}
+
+%%%%%%%%%%
+
+
+Note that the implicit iteration is used to converge the solution of the equation at the new time level – once the equation converges, the value of $\Delta{Q}$ is zero. 
+The direct inversion of a large block banded matrix of the unfactored scheme coupled with high order differencing stencils results in an expensive solve per iteration. 
+To alleviate this difficulty, research work has been focused on indirect methods such ODI and LU-SGS. 
+
+%\subsection{Formulation of a ODI Scheme}
+The popular ODI (one dimensional ADI) scheme replaces the implicit operator by: 
+\begin{equation}
+	\begin{split}
+		\label{eq:TriDi}
+  			\left(I+\alpha\Delta{t}\frac{\partial{A_i^{n+1,k}}}{\partial{x}}\right)\Delta{Q}_i~=~-\Delta{t}\left\{RHS\right\}_i^{n+1, k}
+	\end{split}
+\end{equation}
+If the scheme was extended into two dimensions, Beam and Warming \cite{Beam} ADI factorization is retained. This methodology replaces the implicit operator of the unfactored scheme by a product of two one-dimensional operators: 
+\begin{equation}
+	\begin{split}
+		\label{eq:ADI}
+  			\left(I+\alpha\Delta{t}\frac{\partial{A_i^{n+1,k}}}{\partial{x}}\right)\left(I+\alpha\Delta{t}\frac{\partial{B_j^{n+1,k}}}{\partial{y}}\right)\Delta{Q}_{i,j}~=~-\Delta{t}\left\{RHS\right\}_{i,j}^{n+1, k}
+	\end{split}
+\end{equation}
+where $A$ and $B$ are the Jacobian matrices of the convective flux vectors:
+\begin{equation}
+	\begin{split}
+		\label{eq:}
+  			A~=&~\frac{\partial{E}}{\partial{Q}} \\
+  			B~=&~\frac{\partial{F}}{\partial{Q}}
+	\end{split}
+\end{equation}
+and the value of $\alpha$ depends on the particular time marching scheme used. Widely disseminated codes such as ARC3D \cite{ARC3D}, CFL3D \cite{CFL3D}, INS3D \cite{INS3D}, and FDL3DI \cite{FDL3DI_A, FDL3DI_B, FDL3DI_C} approximately factors the LHS matrix operator (implicit side) and solves it using an ADI scheme. 
+
+The ODI scheme is unconditionally stable (as will be shown in the following chapters). ADI scheme is also unconditionally stable in two-dimensions.  However, the drawback with ADI is it becomes conditionally stable in three-dimension due to error terms of $\Delta{t}^3$. 
+Hence in three dimensions, there is a restriction on the time step.
+
+On the other hand Yoon and Jameson derived an implicit algorithm, the Lower-Upper Symmetric-Gauss-Seidel method (LU-SGS), that does not require flux splitting for approximate Newton iteration \cite{LUSGS}. 
+LU-SGS does not require additional relaxation or factorization on planes of sweep and requires less computational work per iteration than most explicit schemes \cite{YoonLUSGS}. Unlinke Beam and Warming \cite{Beam} ADI factorization, LU-SGS is unconditionally stable in one, two, and three dimensions. The one-dimensional LU-SGS method for approximate Newton iteration can be derived as:
+\begin{equation}
+	\begin{split}
+	\label{eq:LSGSUFinal}
+		LD^{-1}U\Delta{Q}~=&~-\Delta{t}\left\{RHS\right\}^{n+1, k}_i
+	\end{split}
+\end{equation}
+where:
+\begin{equation}
+	\begin{split}
+            L~=&~I + \alpha\Delta{t}\left(D_x^-A^+-A^-\right)\\
+		D^{-1}~=&~I + \alpha\Delta{t}\left(A^+-A^-\right) \\
+		U~=&~I + \alpha\Delta{t}\left(D_x^+A^-+A^+\right)
+	\end{split}
+\end{equation}
+Here, $D_x^-$ is a backward difference operators, and $D_x^+$ is a forward difference operators which result in a lower and upper triangular matrices, respectively.  
+
+\section{Performance of Finite Differencing Scheme on the Convection Equation}
+As shown in Eq. (\ref{eq:NS_DeltaForm}), it is necessary to compute the first spatial derivatives of the solution in order to obtain the time derivative; this time derivative is then integrated in time. 
+At this point in the analysis, the time integration scheme is considered to be ’perfect’ – the only errors will arise from the time derivative itself.
+The spatial derivatives used in Eq. (\ref{eq:NS_DeltaForm}) are computed numerically. 
+A second order finite difference stencils for a first derivative on a uniform grid is expressed as:
+\begin{equation*}
+	\left.\frac{\partial{u}}{\partial{x}}\right|_{i}~=~\frac{u_{i+1}-u_{i-1}}{2\Delta{x}}
+\end{equation*}
+where $\Delta{x}$ is the distance between grid points. Consider a simple harmonic solution of the equation:
+\begin{equation*}
+	u(x, t) = e^{jkx}e^{-j\omega{t}}
+\end{equation*}
+where $k$ is the wavenumber, $\omega=ck$ is the frequency, and $j=\sqrt{-1}$. In this solution the wave convects in the positive $x$ direction at a speed of c and loses amplitude as it convects. The analytical space derivative of this solution is:
+\begin{equation*}
+	\left.u_x\right|_{i}~=~jke^{jkx}e^{-j\omega{t}}
+\end{equation*}
+Substituting the simple harmonic solution into the second order finite difference stencil:
+\begin{equation*}
+	\begin{split}
+		\left.u_x\right|_{i}~=&~\left(\frac{e^{jk\Delta{x}} - e^{-jk\Delta{x}}}{2\Delta{x}}\right)u_i^n \\
+		~=&~\left(\frac{\left(k\Delta{x}\right)}{k\Delta{x}} \right)\left(jku_i^n\right) \\
+		~=&~\alpha\left(jku_i^n\right)
+	\end{split}
+\end{equation*}
+where $\alpha$ is the error in the numerical convection speed (phase speed). 
+Plots of the phase speed error vs wavenumber, $\left(k\Delta{x}\right)$, is shown in Fig. (). 
+In general, increasing the order of accuracy of a spatial differencing scheme will also improve its accuracy on a given grid by increasing the range of values of $\left(k\Delta{x}\right)$ over which $\alpha$ is close to a value of one. 
+The maximum order of accuracy first derivative schemes are:
+\begin{equation*}
+	\begin{split}
+		\left.\frac{\partial{u}}{\partial{x}}\right|_{i}~=&~\frac{u_{i+1}-u_{i-1}}{2\Delta{x}} +\varphi\left(\Delta{x^2}\right) \\
+		\left.\frac{\partial{u}}{\partial{x}}\right|_{i}~=&~\frac{-u_{i+2}+8u_{i+1}-8u_{i-1}+u_{i-2}}{12\Delta{x}}  +\varphi\left(\Delta{x^4}\right) \\
+		\left.\frac{\partial{u}}{\partial{x}}\right|_{i}~=&~\frac{u_{i+3}-9u_{i+2}+45u_{i+1}-45u_{i-1}+9u_{i-2}-u_{i-3}}{60\Delta{x}}  +\varphi\left(\Delta{x^6}\right) 
+	\end{split}
+\end{equation*}
+The Tam and Shen DRP \cite{DRP} and the Hixon RDRP \cite{RDRP} schemes are widely robust optimized schemes given as:
+\begin{itemize}
+	\item DRP \cite{DRP}:
+		\begin{equation*}
+			\left.\frac{\partial{f}}{\partial{x}}\right|_{i}~=~\frac{1}{\Delta{x}}
+				\left(\begin{matrix} 	
+					~~0.0208431427703f_{i+3} \\
+					-~0.166705904415f_{i+2}  \\
+					+~0.770882380518f_{i+1}  \\
+					-~0.770882380518f_{i-1}  \\
+					+~0.166705904415f_{i-2}  \\
+					-~0.0208431427703f_{i-3}
+				\end{matrix}
+				\right)+\varphi\left(\Delta{x^4}\right) 
+		\end{equation*}
+	\item RDRP \cite{RDRP}:
+		\begin{equation*}
+			\left.\frac{\partial{f}}{\partial{x}}\right|_{i}~=~\frac{f_{i+3}-8f_{i+2}+37f_{i+1}-37f_{i-1}+8f_{i-2}-f_{i-3}}{48\Delta{x}}+\varphi\left(\Delta{x^4}\right) 
+		\end{equation*}
+\end{itemize}
+However, an issue when using large stencil sizes for implicit schemes, is the matrix on the LHS is expensive to solve (due to the number of diagonals). 
+
+In order to decrease the computational work faced when solving for the flow variable $\{\Delta{Q}\}$, the LHS matrix is approximated (preconditioned) using second-order differences while maintaining high-order difference on the physics of the governing equations. Hence:
+\begin{equation}
+	\label{eq:RDRP_NS}
+  		\left[I+\Delta{t}\left(\frac{A_{i+3}-8A_{i+2}+37A_{i+1}-37A_{i-1}+8A_{i-2}-A_{i-3}}{48\Delta{x}}\right)^{n+1,k}\right]\Delta{Q}_i~=~-\Delta{t}\left\{RHS\right\}_i^{n+1, k}
+\end{equation}
+is preconditioned as:
+\begin{equation}
+	\label{eq:TriDi_NS}
+  		\left[I+\Delta{t}\left(\frac{A_{i+1}-A_{i-1}}{2\Delta{x}}\right)^{n+1,k}\right]\Delta{Q}_i~=~-\Delta{t}\left\{RHS\right\}_i^{n+1, k}
+\end{equation}
+where $\left\{RHS\right\}_i^{n+1, k}$ in Eq. (\ref{eq:RDRP_NS}) and (\ref{eq:TriDi_NS}) is: 
+\begin{equation*}
+	\left\{RHS\right\}_i^{n+1, k}~=~\left(\frac{Q_i^{n+1, k}-Q_i^n}{\Delta{t}}+\frac{\partial}{\partial{x}}\left(\frac{E_{i+3}-8E_{i+2}+37E_{i+1}-37E_{i-1}+8E_{i-2}-E_{i-3}}{48\Delta{x}}\right)^{n+1,k}\right)
+\end{equation*}
+Approximation made to the LHS matrix will cause numerical errors which can yield instability. A von Neumann stability analysis is performed to check the stability of the preconditioned implicit time step. 
+
+\section{Stability for a Preconditioned Implicit Scheme}
+\subsection{Fourier or Von Neumann Analysis}
+The Fourier or Von Neumann stability analysis is a procedure used to check the stability of finite difference schemes once applied to PDEs. The truncation error for the inviscid convection equation is defined as:
+\begin{equation*}
+	u_i^n~=~D_i^n+\epsilon_i^n
+\end{equation*}
+where $D$ exactly satisfies the discretized equation. Substituting in and eliminating $D$ gives the error equation as:
+\begin{equation}
+	\begin{split}
+		\label{eq:Implicit_Scheme_Error}
+  			\frac{\partial{\epsilon}}{\partial{t}} +\left(c\cdot\frac{\partial{\epsilon}}{\partial{x}}\right)^{n+1}~=~0
+	\end{split}
+\end{equation}
+Assuming that the error is a linear combination of Fourier modes in space: 
+\begin{equation}
+	\begin{split}
+		\label{eq:Error_Fourier}
+  			\epsilon^n~=&~\sum_{k=-\frac{\pi}{\Delta{x}}}^{\frac{\pi}{\Delta{x}}}{A_k^n e^{jkx}} \\
+  			\epsilon^{n+1}~=&~\sum_{k=-\frac{\pi}{\Delta{x}}}^{\frac{\pi}{\Delta{x}}}{A_k^{n+1} e^{jkx}} \\
+  			\Delta{\epsilon}~=&~\sum_{k=-\frac{\pi}{\Delta{x}}}^{\frac{\pi}{\Delta{x}}}{\Delta{A_k} e^{jkx}} \\
+	\end{split}
+\end{equation}
+substituting into equation (\ref{eq:TriDi_NS}) gives the equation for each Fourier mode as:
+\begin{equation}
+	\begin{split}
+		\label{eq:Fourier_Mode_LHS_neq_RHS}
+   			\Delta{\epsilon}+\frac{\nu}{2}\left(\Delta{\epsilon_{i+1}}-\Delta{\epsilon_{i-1}} \right)~=&~-\Delta{t}\left(\left.\frac{\partial}{\partial{x}}\right|_{RHS}\left( c \right)\right) {\epsilon}_i^{n} \\
+  			\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~=&~1+\frac{\nu^2\alpha_2\left(\alpha_2-2\alpha_1\right)}{1+\nu^2\alpha_1^2}
+	\end{split}
+\end{equation}
+where $\alpha_1$ and $\alpha_2$ are the second order and RDRP difference error in the numerical convection speed, respectively. 
+A finite difference scheme is stable if the errors made at one time step of the calculation do not cause the errors to be amplified. 
+Such a scheme exists if the amplification factor is less than or equal to one. 
+
+It can be proved, stability is only possible in Eq. (\ref{eq:Fourier_Mode_LHS_neq_RHS}) at high $\nu$ if:
+\begin{equation*}
+	\alpha_2-2\alpha_1 \leq 0
+\end{equation*}
+Instability is clearly visible in Figure () at high wave-numbers. If equation () is approximated once again such that a scaling factor is multiplying the second order difference:
+\begin{equation}
+	\begin{split}
+		\label{eq:Fourier_Mode_LHS_neq_RHS_Scaling}
+   			\Delta{\epsilon}+\frac{\sigma\nu}{2}\left(\Delta{\epsilon_{i+1}}-\Delta{\epsilon_{i-1}} \right)~=&~-\Delta{t}\left(\left.\frac{\partial}{\partial{x}}\right|_{RHS}\left( c \right)\right) {\epsilon}_i^{n} \\
+  			\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~=&~1+\frac{\nu^2\alpha_2\left(\alpha_2-2\sigma\alpha_1\right)}{1+\nu^2\sigma^2\alpha_1^2}
+	\end{split}
+\end{equation}
+Hence the scaling factor is physically insuring the numerical errors from the second-order difference can overcome the numerical errors from the RDRP differencing stencil to insure stability. Thus for stability:
+\begin{equation*}
+	\alpha_2-2\alpha_1\sigma \leq 0
+\end{equation*}
+and the scaling factor values are shown in Table (). Finally the new preconditioned scheme is written as: 
+\begin{equation}
+	\label{eq:TriDi_NS_Scaling}
+  		\left[I+\Delta{t}\sigma\left(\frac{A_{i+1}-A_{i-1}}{2\Delta{x}}\right)^{n+1,k}\right]\Delta{Q}_i~=~-\Delta{t}\left\{RHS\right\}_i^{n+1, k}
+\end{equation}
+this will be referred to as tridiagonal matrices with scaling factors. 
+\subsection{Bounded Flow and Scaling Factors}
+Before examining the benchmark problems and validating the periodic scaling factor values obtained, it is essential to compute the scaling factors with bounded flow.
+For problems with periodic boundary conditions, the Fourier analysis presented above may be used to assess the global errors and calculate periodic scaling factors. 
+This, however, is not possible with other forms of boundary conditions such as a bounded flow. 
+Hence an eigendecomposition is once again needed to calculate the bounded scaling factors. 
+
+An eigenvalue analysis is used to test the numerical stability of a time step with different differencing stencil operators for a bounded flow. 
+Consider a one-dimensional linear advection case discretized into $N$ equal intervals in space. 
+A second order spatial difference is used on the LHS, and the governing equation is:
+\begin{equation}
+	\begin{split}
+		\label{eq:LAE}
+  			\left(I+\Delta{t}\cdot\left(\left.\frac{\partial}{\partial{x}}\right|_{LHS}\left(c\right)\right)\right)\Delta{u}~=&~-\Delta{t}\left(\left.\frac{\partial}{\partial{x}}\right|_{RHS}\left(c\right)\right) {u}_i^{n} \\
+  			\Delta{u}+\frac{\nu}{2}\left(\Delta{u_{i+1}}-\Delta{u_{i-1}} \right)~=&~-\Delta{t}\left(\left.\frac{\partial}{\partial{x}}\right|_{RHS}\left(c\right)\right) {u}_i^{n} \\
+  			\left[A\right]\left\{\Delta{u}\right\}~=&~\left[B\right]\left\{u_{i}^{n}\right\} \\
+	\end{split}
+\end{equation}
+Where $[A]$ and $[B]$ are $N\times{N}$ (sparse) matrices and $\Delta{u},~u_{i}^{n}$ are $N$ vectors representing the value of the function at the nodes $x_i~=~i/N$.
+To analyze the stability of a time step we re-write Eq. (\ref{eq:LAE}) as:
+\begin{equation}
+\label{eq:AB}
+	\begin{split}
+  		[A]\{\Delta{u_i\}}~=&~[B]\{u_i^{n}\} \\
+  		\left\{\frac{\Delta{u_i}}{u_i^{n}}\right\}~=&~[A]^{-1}[B] \\
+  		\frac{u_i^{n+1}}{u_i^{n}} - [1]~=&~[A]^{-1}[B] \\
+  		\frac{u_i^{n+1}}{u_i^{n}}~=&~[A]^{-1}[B] + [1] \\
+  		~=&~[C]
+	\end{split}
+\end{equation}
+The eigenvalues are calculated as:
+\begin{equation}
+	\begin{split}
+		\label{eq:Magnitude_Of_Eigen}
+  			\left|\frac{u_i^{n+1}}{u_i^{n}}\right|~=~\left|\lambda\left[C\right]\right|
+	\end{split}
+\end{equation}
+If the magnitude of the eigenvalues is less than or equal to one, then the time-step is stable.  
+Otherwise, error terms will amplify, and the time step is unstable.
+Note that matrices $[A]$ and $[B]$ are functions of the CFL, $\nu$. 
+Therefore the eigenvalues obtained are also functions of $\nu$. 
+
+For this analysis, all schemes use the Hixon et al. 'ghost point correction' method, \cite{GPT, RDRP} in which the governing equations are directly solved at the boundary points. 
+As described in the reference, the spatial derivatives are first computed for all directions, using the '\textit{noBC}' stencils in the direction normal to the boundary. 
+The boundary conditions of:
+\begin{equation}
+	\begin{split}
+		\label{eq:}
+  			\left.\frac{\partial{f}}{\partial{x}}\right|_i^{BC}~=~0
+	\end{split}
+\end{equation}
+is then applied as a 'correction' to the normal derivative at the boundary, modifying the flux value at a nonphysical' ghost point' outside the computational domain.
+This modified ghost point value affects the normal derivative at every grid point whose spatial derivative uses the ghost point value. 
+These corrections are given in terms of the boundary normal derivative correction on the appropriate grid line in the reference \cite{GPT, RDRP}. Values of the bounded scaling factors are calculated numerically and shown in Table \ref{tab:Scaling}
+
+\subsection{LU-SGS Stability}
+\label{subsec:LUSGS}
+Yoon and Jameson's LU-SGS numerical time-step stability is analyzed in this section. The eigendecomposition setup explained in Section \ref{subsec:TriDi} is used again here.
+Consider a periodic one-dimensional linear advection case, that is discretized into $N$ equal intervals in space, the LU-SGS method is written as:
+\begin{equation}
+	\begin{split}
+	\label{eq:LSGSU_LAE}
+		LD^{-1}U\Delta{u}~=&~-\Delta{t}\left\{RHS\right\}^{n}_i
+	\end{split}
+\end{equation}
+note that using the linear advection equation the jacobian of the flux, $A$, and the corresponding eigenvalue are:
+\begin{equation}
+	\begin{split}
+		\label{eq:FluxJac_Eig}
+  			A~=&~\frac{\partial{E}}{\partial{Q}}~=~c \\
+  			\epsilon_A~=&~c
+	\end{split}
+\end{equation}
+giving the decomposed positive and negative eigenvalues, $A^+$ and $A^-$ respectively:
+\begin{equation}
+	\begin{split}
+		\label{eq:A_Plus_Minus}
+  			A^{+}~=&~\frac{1}{2}\left(A+\epsilon_AI\right)~=~c \\
+  			A^{-}~=&~\frac{1}{2}\left(A-\epsilon_AI\right)~=~0
+	\end{split}
+\end{equation}
+thus:
+\begin{equation}
+	\label{eq:LDU}
+	\begin{split}
+            L~=&~I + \alpha\Delta{t}\left(D_x^-A^+\right)\\
+		D~=&~I + \alpha\Delta{t}\left(A^+\right) \\
+		U~=&~I + \alpha\Delta{t}\left(A^+\right)
+	\end{split}
+\end{equation}
+where $D_x^-$ is a \textit{first order backward difference operator}.  
+To analyze the stability of a time step, re-write Eq. (\ref{eq:LSGSU_LAE}) as:
+\begin{equation}
+\label{eq:AB}
+	\begin{split}
+  		[L][D]^{-1}[U]\{\Delta{u_i\}}~=&~[B]\{u_i^{n}\} \\
+  		[A]\{\Delta{u_i\}}~=&~[B]\{u_i^{n}\} \\
+  		\frac{u_i^{n+1}}{u_i^{n}}~=&~[A]^{-1}[B] + [1] \\
+  		~=&~[C]
+	\end{split}
+\end{equation}
+The eigenvalues are calculated as:
+\begin{equation}
+	\begin{split}
+		\label{eq:Magnitude_Of_Eigen}
+  			\left|\frac{u_i^{n+1}}{u_i^{n}}\right|~=~\left|\lambda\left[C\right]\right|
+	\end{split}
+\end{equation}
+If the magnitude of the eigenvalues is less than or equal to one, then the time-step is stable.   
+The most striking result to emerge from the data is with periodic and bounded flow, no scaling factors are needed when using the LU-SGS factorization on the LHS as seen in Table (\ref{tab:Scaling}). 
+
+\begin{table}[htp!]
+\centering
+\caption{Periodic and Bounded Flow Scaling Factors}
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+ & \multicolumn{1}{c|}{\textbf{$\sigma_{E2}$}} & \multicolumn{1}{c|}{\textbf{$\sigma_{E4}$}} & \multicolumn{1}{c|}{$\sigma_{E6}$} & \multicolumn{1}{c|}{$\sigma_{DRP}$} & \multicolumn{1}{c|}{$\sigma_{RDRP}$}& \multicolumn{1}{c|}{$\sigma_{C4}$}\\ \hline
+\textbf{Tridiagonal Matrix-Periodic} & \textit{1.0} & \textit{1.0} & \textit{$\nicefrac{11}{10}$} & \textit{1.166823} & \textit{$\nicefrac{7}{6}$} & \textit{1.49982}\\ \hline
+\textbf{LUSGS-Periodic} & \textit{1.0} & \textit{1.0} & \textit{1.0} & \textit{1.0} & \textit{1.0} & \textit{1.0}\\ \hline
+\textbf{Tridiagonal Matrix-Bounded} & \textit{1.0} & \textit{2.12179} & \textit{6.3527} & 
+	\textit{4.97487} & 
+	\textit{6.36206}& 
+	\textit{3.80018}\\ \hline
+\textbf{LUSGS-Bounded} & \textit{1.0} & \textit{1.0} & \textit{1.0} & 
+	\textit{1.0} & 
+	\textit{1.0} & 
+	\textit{1.0}\\ \hline
+\end{tabular}
+\label{tab:Scaling}
+\end{table}
+
+
+\section{Numerical Results for Benchmark
+Problems}
+One way to analyze the stability of an implicit time-step was shown in Section \ref{sec:Eigenvalue}; 
+form the associated matrices using a finite number of points. Then use computer software to compute the eigenvalues, which then can be used to quantify the stability nature of each scheme. 
+While this does provide at least a first-order measure of linear stability, the analysis is by no means rigorous or general. 
+Hence, real-life nonlinear benchmark steady problems are studied in this section to validate the conclusions from the eigenvalue analysis. 
+
+In Computational Fluid Dynamics and Computational Aeroacoustics, emphasis is given on the calculation of both the steady and unsteady flow. 
+Various numerical schemes are developed to correctly understand and predict the physics of noise generation and propagation. 
+To verify the correct implementation of those schemes and their performances, a range of validation problems with solutions are listed in the CAA Workshops \cite{CAA1, CAA2, CAA3}.
+
+Two problems from the Third CAA workshop are studied in this paper: \textit{Category 1 Problem 1 and Category 1 Problem 2} \cite{CAA3}. 
+Category 1 problems deal with internal propagation; 
+the propagation of sound through a narrow passage with flow exists in many applications. 
+Problem 1 models the upstream propagation of sound through a nozzle with near sonic conditions. 
+For the second problem, a shock is present in the nozzle, making nonlinearities important. 
+The focus is on the steady-mean flow solutions for both problems.  
+
+The numerical solver for this work uses an implicit time marching scheme with TriDi and LU-SGS formulation on the LHS. 
+The LHS spatial difference is coupled with scaling factors for stability. 
+While the following spatial differences are used on the RHS:
+\begin{itemize}
+	\item Second Order (E2)
+	\item Fourth Order (E4)
+	\item Sixth Order (E6)
+	\item RDRP  (RDRP)
+	\item DRP  (DRP)
+	\item Prefactored Fourth-Order Compact (C4)
+\end{itemize}
+
+In order to accurately predict the steady mean flow, it is crucial to apply the boundary conditions correctly; otherwise, the boundaries may (and will) generate spurious fluctuations and thereby contaminate the entire solution. 
+Thompson's nonlinear boundary conditions are used (referred to as characteristic boundaries in the literature).  
+
+The Thompson approach \cite{Thompson1, Thompson2} uses an eigendecomposition on the Euler flux Jacobian matrix to generate the eigenvalues and eigenvector matrices, which are then used to diagonalize and decompose the equations. 
+This decomposition generates three equations when compared to the linear advection equation, can classify three different waves:
+\begin{enumerate}
+	\item An entropy wave, convecting with the flow:
+		\begin{equation*}
+			\frac{\partial{A_s}}{\partial{t}}~=~p_t-c^2\rho_t
+		\end{equation*}
+	\item A downstream-running acoustic wave, convecting with the flow and propagating downstream at the speed of sound:
+		\begin{equation*}
+			\frac{\partial{A_+}}{\partial{t}}~=~p_t+\rho{c}u_t
+		\end{equation*}
+	\item An upstream-running acoustic wave, convecting with the flow and propagating upstream at the speed of sound:
+		\begin{equation*}
+			\frac{\partial{A_-}}{\partial{t}}~=~p_t-\rho{c}u_t
+		\end{equation*}
+\end{enumerate}
+Following Thompson's approach, waves leaving the domain are left unspecified. 
+The calculations of such waves are determined using a one-sided difference. 
+Waves that are entering the domain must be specified.
+
+ 
+ 
+\subsection{Category 1 Problems}
+Quasi-1D nonlinear Euler equations are used to solve these two problems. The equations are given in the conservative variables as:
+
+\begin{equation}
+    \label{eq:Euler}
+    \frac{\partial{Q}}{\partial{t}}+\frac{\partial{F}}{\partial{x}}-D(Q) = S
+\end{equation}
+where \textit{Q}, \textit{F}, \textit{D}, and \textit{S} are all vectors:
+
+\begin{equation}
+    \label{eq:Euler_Q}
+    Q = 
+    \begin{Bmatrix}
+        \rho \\
+        \rho{u} \\
+        E_{tot}
+  \end{Bmatrix}
+\end{equation}
+
+\begin{equation}
+    \label{eq:Euler_F}
+    F = 
+    \begin{Bmatrix}
+        \rho{u} \\
+        \rho{u^2}+p \\
+        u(E_{tot}+p)
+  \end{Bmatrix}
+\end{equation}
+\begin{equation}
+    \label{eq:Euler_S}
+    S = -\frac{1}{A}\frac{\partial{A}}{\partial{x}}
+    \begin{Bmatrix}
+        \rho{u} \\
+        \rho{u^2} \\
+        u(E_{tot}+p)
+  \end{Bmatrix}
+\end{equation}
+In these equations,
+\begin{equation}
+    \label{eq:Euler_pressure}
+    \begin{split}
+    p &= (\gamma-1)\Big(E_{tot}-\frac{\rho{u^2}}{2}\Big) \\
+    \gamma &= 1.4
+    \end{split}
+\end{equation}
+The area of the duct is given by:
+\begin{equation}
+	\begin{split}
+		\label{eq:}
+  			A(x)~=&~\left\{
+  			\begin{matrix}
+  				0.536572~-~0.198086e^{\left(-ln2\right)\left(\frac{x}{0.6}\right)^2} & x \geq 0 \\
+  				1.0~-~0.661514e^{\left(-ln2\right)\left(\frac{x}{0.6}\right)^2} & x \leq 0
+  			\end{matrix}
+  			\right.
+	\end{split}
+\end{equation}
+on a computational domain of $-10\leq~x~\leq10$. The duct area and grid distribution vs grid domain are shown in Fig. \ref{fig:Domain_Area} and Fig. \ref{fig:Domain_Deltax} respectively. 
+%The mean flow conditions are: 
+%\begin{equation}
+%    \label{eq:Euler_BC}
+%    \begin{split}
+%    \overline{\rho}~=&~1 \\
+%    \overline{u}~=&~0.4 \\
+%    \overline{p}~=&~\frac{1}{\gamma}
+%    \end{split}
+%\end{equation}
+The mean stagnation pressure and density are calculated as:
+\begin{equation}
+    \label{eq:Euler_BC_2}
+    \begin{split}
+    \overline{p_0}~= & ~\overline{p}\left(1+\frac{\gamma -1}{2}\overline{M}^2\right)^{\frac{\gamma}{\gamma-1}} \\
+    \overline{\rho_0}~= & ~\overline{\rho}\left(1+\frac{\gamma -1}{2}\overline{M}^2\right)^{\frac{1}{\gamma-1}} \\
+    \overline{M} ~ = & ~ \frac{\overline{u}}{\overline{c}} \\
+    \overline{c} ~ = & ~ \sqrt{\frac{\gamma{\overline{p}}}{\overline{\rho}}}
+    \end{split}
+\end{equation}
+mean flow conditions such as $\left(\overline{\rho},~\overline{u},~\overline{p} \right)$ are specified for each problem. 
+
+For both Category 1 problems, the inflow and outflow boundaries are subsonic. 
+Hence on the inflow, the entropy and downstream running acoustic waves are specified using the mean stagnation pressure and mean stagnation density.
+The outflow boundary specifies the upstream-running acoustic wave using the mean exit pressure. 
+
+\begin{figure}[hbtp!]
+	\centering
+{\includegraphics[width=0.7\textwidth]{Figures/Area}}
+  	\caption{Category 1 Problems \\ ~~~~~~~~~Domain vs Area}
+  	\label{fig:Domain_Area}
+\end{figure}
+
+\begin{figure}[hbtp!]
+	\centering
+{\includegraphics[width=0.7\textwidth]{Figures/DX}}
+  	\caption{Category 1 Problems \\ ~~~~~~~~~Domain vs Grid Distribution $\Delta{x}$, 251 Grid Points}
+  	\label{fig:Domain_Deltax}
+\end{figure}
+
+
+\subsubsection{Problem 1: Propagation of Sound Waves through a Transonic Nozzle}
+The mean flow conditions are: 
+\begin{equation*}
+	\left\{
+	\begin{matrix}
+		\overline{\rho} \\
+		\overline{u} \\
+		\overline{p}
+	\end{matrix}
+	\right\}~=~
+	\left\{
+	\begin{matrix}
+		1.0 \\
+		0.4 \\
+		\frac{1}{\gamma}
+	\end{matrix}
+	\right\}
+\end{equation*}
+%Figures \ref{fig:LUSGS_C1P1} and \ref{fig:TriDi_C1P1} show the solution to the subsonic case.  
+In this test case, an inviscid flow travels through a converging-diverging nozzle. 
+This is a fully subsonic flow since there is no discontinuity in pressure.
+A pressure drop is expected as the flow accelerates through the throat and then rises again as the flow backs down in Fig. \ref{fig:LUSGS_C1P1} and Fig. \ref{fig:TriDi_C1P1}. 
+All solutions are shown using 251 grid points. 
+Both TriDi, with bounded scaling factors, and LU-SGS LHS formulation agree well with the exact solution.
+
+
+\begin{figure}[hbtp!]
+	\centering
+	{\includegraphics[width=.7\textwidth]{Figures/LUSGS_C1P1}}
+	\caption{Domain vs Mean Pressure for Category 1 Problem 1, LU-SGS LHS}
+	\label{fig:LUSGS_C1P1}
+\end{figure}
+
+\begin{figure}[hbtp!]
+	\centering
+	{\includegraphics[width=.7\textwidth]{Figures/TriDi_C1P1}}
+	\caption{Domain vs Mean Pressure for Category 1 Problem 1, TriDi LHS}
+	\label{fig:TriDi_C1P1}
+\end{figure}
+
+
+
+\subsubsection{Problem 2: Shock-Sound Interaction}
+The mean flow conditions are: 
+\begin{equation*}
+	\left\{
+	\begin{matrix}
+		\overline{\rho} \\
+		\overline{u} \\
+		\overline{p}
+	\end{matrix}
+	\right\}~=~
+	\left\{
+	\begin{matrix}
+		1.0 \\
+		0.2006533 \\
+		\frac{1}{\gamma}
+	\end{matrix}
+	\right\}
+\end{equation*}
+At the outflow boundary, the pressure is set such that it creates a shock: 
+\begin{equation*}
+	p_{exit}~=~0.6071752
+\end{equation*}
+
+This flow with a supersonic region and a shock downstream of the throat. 
+The existence of a shock can be seen in a steep increase in pressure in Fig. \ref{fig:LUSGS_C1P2} and Fig. \ref{fig:TriDi_C1P2}. 
+The shock is a discontinuity in the flow, which can cause oscillation in the solutions. 
+Note, however, that the shock strength and location are consistent with all differencing stencils regardless of the LHS formulation.  
+Both TriDi, with bounded scaling factors, and LU-SGS LHS formulation agree well with the exact solution.
+
+\begin{figure}[hbtp!]
+	\centering
+	{\includegraphics[width=.7\textwidth]{Figures/LUSGS_C1P2}}
+	\caption{Domain vs Mean Pressure for Category 1 Problem 2, LU-SGS LHS}
+	\label{fig:LUSGS_C1P2}
+\end{figure}
+
+\begin{figure}[hbtp!]
+	\centering
+	{\includegraphics[width=.7\textwidth]{Figures/TriDi_C1P2}}
+	\caption{Domain vs Mean Pressure for Category 1 Problem 2, TriDi LHS}
+	\label{fig:TriDi_C1P2}
+\end{figure}
+
+
+
+
+
+\section{Conclusion}
+The present research aimed to establish a highly efficient implicit solver while using higher-order spatial differencing schemes. 
+Through the use of scaling factors, the LHS matrix was replaced with an easier to solve matrix hence cutting down on the computational work needed for the iterative steady-state solver. 
+Although the current study is based on one-dimensional problems, the findings suggest stability is possible for TriDi formulation if scaling factors are used on the LHS spatial difference. 
+Scaling factors ensured that the maximum eigenvalues from the LHS spatial difference were greater than the RHS.  
+Different boundaries would yield different scaling factor values. 
+The second significant finding in this work was, LU-SGS formulation on the LHS does not require scaling factors regardless of the boundaries used. 
+Both Tri-Di and LU-SGS formulation were tested against steady CAA workshop data; the numerical solution agrees with the exact.  
+
+Due to factorizations in two and three-dimensions, new error terms are introduced when dealing with ADI. 
+Hence, testing the scaling factors in multiple dimensions would be a fruitful area for further work. 
+Future studies need to be carried out to validate viscous flow solutions. 
+Further research might also explore if scaling factors are needed with compact differencing schemes. 
+
+\section{Appendix}
+\subsection{Stability of an Implicit Scheme}
+{
+{\label{Sec:Appendix:Stability_Fourier}
+To investigate the stability of an implicit time-step, the linearized inviscid one dimensional linear advection equation is used, which is written as:
+\begin{equation}
+	\begin{split}
+		\label{eq:LAE_Simple_Version}
+  			u_t+cu_x~=~0
+	\end{split}
+\end{equation}
+Using a the Second Order (E2) central differencing scheme for spatial differencing, combined with an implicit first order time marching scheme, the discretized equation on a uniform grid with spacing $\Delta{x}$ is:
+\begin{equation}
+	\begin{split}
+		\label{eq:LAE_RDRP}
+  			\Delta{u_i}+\frac{\nu}{2}\left(\Delta{u_{i+1}}-\Delta{u_{i-1}}\right) ~=&~-\frac{\nu}{2}\left(u^n_{i+1}-u^n_{i-1}\right)
+	\end{split}
+\end{equation}
+where
+\begin{equation*}
+	\nu~=~\frac{c\Delta{t}}{\Delta{x}}
+\end{equation*}
+The truncation error is defined as:
+\begin{equation*}
+	u_i^n~=~D_i^n+\epsilon_i^n
+\end{equation*}
+where $D$ exactly satisfies the discretized equation. Substituting in and eliminating $D$ gives the error equation as:
+\begin{equation}
+	\begin{split}
+		\label{eq:Error_Equation}
+  			\Delta{\epsilon_i}+\frac{\nu}{2}\left(\Delta{\epsilon_{i+1}}-\Delta{\epsilon_{i-1}}\right) ~=&~-\frac{\nu}{2}\left(\epsilon^n_{i+1}-\epsilon^n_{i-1}\right)
+	\end{split}
+\end{equation}
+Assuming that the error is a linear combination of Fourier modes in space: 
+\begin{equation}
+	\begin{split}
+		\label{eq:Error_Fourier}
+  			\epsilon^n~=&~\sum_{k=-\frac{\pi}{\Delta{x}}}^{\frac{\pi}{\Delta{x}}}{A_k^n e^{ikx}} \\
+  			\epsilon^{n+1}~=&~\sum_{k=-\frac{\pi}{\Delta{x}}}^{\frac{\pi}{\Delta{x}}}{A_k^{n+1} e^{ikx}} \\
+  			\Delta{\epsilon}~=&~\sum_{k=-\frac{\pi}{\Delta{x}}}^{\frac{\pi}{\Delta{x}}}{\Delta{A_k} e^{ikx}} \\
+	\end{split}
+\end{equation}
+gives the equation for each Fourier mode as:
+\begin{equation}
+	\begin{split}
+		\label{eq:Fourier_Mode}
+  			\left(1+i\nu\sin(k\Delta{x})\right)\Delta{A_k}~=&~\left(i\nu\sin(k\Delta{x})\right)A_k^n \\
+  			(1+i\nu\beta)\Delta{A_k}~=&~-i\nu\beta{A_k^n} \\
+  			\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~=&~\frac{1}{1+\left(\nu\beta\right)^2}
+	\end{split}
+\end{equation}
+where
+\begin{equation*}
+	\beta~=~\left(k\Delta{x}\right)^*_{E2}
+\end{equation*}
+which is clearly going to be less than one for any value of $\nu$. 
+}
+
+\subsection{Stability of an Implicit Scheme with Different Spatial Derivatives}
+{\label{sec:Appendix:Scaling_Fac}
+%
+%An issue when using large stencil sizes for implicit schemes such as Sixth order schemes or Hixon's RDRP \cite{RDRP}, is that the matrix on the LHS is expensive to solve (due to the number of diagonals). 
+%Can the left-hand side matrix be replaced with an easier-to-solve matrix while still keeping stability? 
+Using a second order central differencing solver on the LHS, the error equation becomes:
+\begin{equation}
+	\begin{split}
+		\label{eq:Error_Equation_LHS_neq_RHS}
+  			\Delta{\epsilon_i}+\frac{\nu}{2}\left(\Delta{\epsilon_{i+1}}-\Delta{\epsilon_{i-1}}\right) ~=&~-{\nu}\Delta{x}\left(\left.\frac{\partial{\epsilon}}{\partial{x}}\right|_i^n\right)_{RHS}
+	\end{split}
+\end{equation}
+and simplifying:
+\begin{equation*}
+	\begin{split}
+  		\alpha_1~=&~\left(k\Delta{x}\right)^*_{E2} \\
+  		\beta_1~=&~\left(k\Delta{x}\right)^*_{RHS}
+	\end{split}
+\end{equation*}
+The error equation for a Fourier mode becomes:
+\begin{equation}
+	\begin{split}
+		\label{eq:Fourier_Mode_LHS_neq_RHS}
+  			(1+i\nu\alpha_1)\Delta{A_k}~=&~-i\nu\beta_1{A_k^n} \\
+  			\frac{A_k^{n+1}}{A_k^{n}}~=&~1-\frac{i\nu\beta_1}{\left(1+i\nu\alpha_1\right)}\\
+  			\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~=&~1+\frac{\nu^2\beta_1\left(\beta_1-2\alpha_1\right)}{1+\nu^2\alpha_1^2}
+	\end{split}
+\end{equation}
+From numerical testing, this is unstable. However, if the equation is changed to add a scaling factor $\sigma$ multiplying the spatial derivative on the LHS:
+
+\begin{equation}
+	\begin{split}
+		\label{eq:Fourier_Mode_Sigma}
+  			\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~=&~1+\frac{\nu^2\beta_1\left(\beta_1-2\sigma\alpha_1\right)}{1+\nu^2\sigma^2\alpha_1^2}
+	\end{split}
+\end{equation}
+At low values of $\nu$:
+\begin{equation*}
+	\begin{split}
+		\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~\to&~1
+	\end{split}
+\end{equation*}
+which is a significant result since numerical data from Fig \ref{fig:nu_vs_magnitude} observe the same trend. 
+Interestingly at large values of $\nu$:
+\begin{equation*}
+	\begin{split}
+		\left|\frac{A_k^{n+1}}{A_k^{n}} \right|^2~\to&~1+\frac{\beta_1\left(\beta_1-2\sigma\alpha_1\right)}{\sigma^2\alpha_1^2} \\
+		~\to&~1+\frac{\beta_1}{\sigma^2\alpha_1^2}\left(\beta_1-2\sigma\alpha_1\right)
+	\end{split}
+\end{equation*}
+the amplification rate becomes a constant, which also corresponds with the numerical results obtained in Fig. \ref{fig:nu_vs_magnitude}. 
+
+A numerical investigation showed that the stability issue is a maximum as $\left(k\Delta{x}\right)\to\pi$. At a value of $\left(k\Delta{x}\right)=\pi$, all first derivative central differencing schemes are going to have a numerical wavenumber value of zero. Thus, the Taylor series expansion of the numerical wavenumber about that point:
+\begin{equation}
+	\begin{split}
+		\label{eq:TS_Numerical_Wave}
+  			\left(k\Delta{x}\right)^*\left(\pi+\Delta\left(k\Delta{x}\right)\right)~=~\left.\frac{\partial\left({k\Delta{x}}\right)^*}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}\left(\Delta\left(k\Delta{x}\right)\right)
+	\end{split}
+\end{equation}
+Taking the derivatives of the schemes gives:
+\begin{itemize}
+	\item Second Order (E2):
+		\begin{equation*}
+			\begin{split}
+  			\left.\frac{\partial\left({k\Delta{x}}\right)^*_{E2}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}~=&~\left.\cos\left({k\Delta{x}}\right)\right|_{\pi} \\
+  			~=&~-1 
+				\end{split}		
+				\end{equation*}
+	\item Fourth Order (E4):
+		\begin{equation*}
+			\begin{split}
+  			\left.\frac{\partial\left({k\Delta{x}}\right)^*_{E4}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}~=&~\frac{8}{6}\left.\cos\left({k\Delta{x}}\right)\right|_{\pi}-\frac{2}{6}\left.\cos\left(2{k\Delta{x}}\right)\right|_{\pi} \\
+  			~=&~-\frac{5}{3} 
+				\end{split}
+		\end{equation*}	
+	\item Sixth Order (E6):
+		\begin{equation*}
+			\begin{split}
+  			\left.\frac{\partial\left({k\Delta{x}}\right)^*_{E6}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}~=&~\frac{45}{30}\left.\cos\left({k\Delta{x}}\right)\right|_{\pi}-\frac{18}{30}\left.\cos\left(2{k\Delta{x}}\right)\right|_{\pi}+\frac{3}{30}\left.\cos\left(3{k\Delta{x}}\right)\right|_{\pi} \\
+  			~=&~-\frac{11}{5}
+				\end{split}
+		\end{equation*}
+	\item RDRP \cite{RDRP}:
+		\begin{equation*}
+			\begin{split}
+  			\left.\frac{\partial\left({k\Delta{x}}\right)^*_{RDRP}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}~=&~\frac{37}{24}\left.\cos\left({k\Delta{x}}\right)\right|_{\pi}-\frac{16}{24}\left.\cos\left(2{k\Delta{x}}\right)\right|_{\pi}+\frac{3}{24}\left.\cos\left(3{k\Delta{x}}\right)\right|_{\pi} \\
+  			~=&~-\frac{7}{3} 
+				\end{split}
+		\end{equation*}
+	\item DRP \cite{DRP}:
+		\begin{equation*}
+			\begin{split}
+  			\left.\frac{\partial\left({k\Delta{x}}\right)^*_{DRP}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}~=&~
+  			\left(
+  			\begin{matrix}
+  			1.541764761036\cdot\left.\cos\left({k\Delta{x}}\right)\right|_{\pi} \\
+  			-0.66682361766\cdot\left.\cos\left(2{k\Delta{x}}\right)\right|_{\pi} \\
+  			+0.12505885662\cdot\left.\cos\left(3{k\Delta{x}}\right)\right|_{\pi}
+  			\end{matrix}
+  			\right) \\
+  			~=&~-2.333647235317799
+				\end{split}
+		\end{equation*}
+\end{itemize}
+The numerical wavenumbers of the schemes very close to $\pi$ are:
+\begin{equation}
+	\begin{split}
+		\label{eq:}
+  			\alpha\left(\pi-\delta\left(k\Delta{x}\right)\right)~=&~ -\left.\frac{\partial\left({k\Delta{x}}\right)^*_{RHS}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}\left(\delta\left({k\Delta{x}}\right)\right) \\
+  			\beta\left(\pi-\delta\left(k\Delta{x}\right)\right)~=&~ \sigma\left(\delta\left({k\Delta{x}}\right)\right) \\
+	\end{split}
+\end{equation}
+and the stability parameter is:
+\begin{equation}
+	\begin{split}
+		\label{eq:}\beta_1-2\alpha_1\sigma~=~\boldsymbol{\left(-\left.\frac{\partial\left({k\Delta{x}}\right)^*_{RHS}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}-2\sigma\right)} \left(\delta\left({k\Delta{x}}\right)\right)  			
+	\end{split}
+\end{equation}
+Setting the highlighted portion above to zero gives:
+\begin{equation}
+	\begin{split}
+		\label{eq:}
+  			\sigma~=~\frac{1}{2}\left(-\left.\frac{\partial\left({k\Delta{x}}\right)^*_{RHS}}{\partial\left({k\Delta{x}}\right)}\right|_{\pi}\right)
+	\end{split}
+\end{equation}
+hence the scaling factors are:
+
+\begin{itemize}
+	\item Second Order (E2):
+		\begin{equation*}
+			\sigma_{E2}~=~0.5
+		\end{equation*}
+	\item Fourth Order (E4):
+		\begin{equation*}
+			\sigma_{E4}~=~\frac{5}{6}
+		\end{equation*}	
+	\item Sixth Order (E6):
+		\begin{equation*}
+			\sigma_{E6}~=~\frac{11}{10}
+		\end{equation*}
+	\item RDRP, \cite{RDRP}:
+		\begin{equation*}
+			\sigma_{RDRP}~=~\frac{7}{6}
+		\end{equation*}
+	\item DRP, \cite{DRP}:
+		\begin{equation*}
+			\sigma_{DRP}~=~1.166823617658900
+		\end{equation*}
+\end{itemize}
+If the scaling factor $\sigma\leq1$, then no scaling factors are needed for the scheme (or the scaling factor can be set to $\sigma=1$). 
+}
+
+
+\section*{Acknowledgments}
+This work was supported by the NASA Advanced Air Transportation Technologies (AATT) Project. The author would like to thank Dr. Edmane Envia of the NASA Glenn Research Center, the technical monitor for this work.
+
+
+\bibliography{sample}
+
+
+\end{document}
