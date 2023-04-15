@@ -1,0 +1,135 @@
+This is BibTeX, Version 0.99d (TeX Live 2021)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: /Users/zaidhs/Desktop/University/Graduate/Hixon - Research/GitRepositories/ScalingFactorsPaper/Paper/.texpadtmp/ScalingFactors.aux
+The style file: ../new-aiaa.bst
+Database file #1: ../sample.bib
+Warning--I'm ignoring GlennHT's extra "type" field
+--line 290 of file ../sample.bib
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Warning--empty pages in Lele
+Warning--missing publisher in Maccormack
+Warning--empty year in Maccormack; set to ????
+Warning--empty pages in Maccormack
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry Maccormack
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--empty year in Briley; set to ????
+Warning--empty journal in ARC2D
+Warning--missing publisher in ARC3D
+Warning--empty year in ARC3D; set to ????
+Warning--empty pages in ARC3D
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry ARC3D
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in CFL3D
+Warning--empty year in CFL3D; set to ????
+Warning--empty pages in CFL3D
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry CFL3D
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in OVERFLOW
+Warning--empty year in OVERFLOW; set to ????
+Warning--empty pages in OVERFLOW
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry OVERFLOW
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in DualTimeStepping
+Warning--empty year in DualTimeStepping; set to ????
+Warning--empty pages in DualTimeStepping
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry DualTimeStepping
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in Dual_Time
+Warning--empty year in Dual_Time; set to ????
+Warning--empty pages in Dual_Time
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry Dual_Time
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in Sheih
+Warning--empty year in Sheih; set to ????
+Warning--empty pages in Sheih
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry Sheih
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in FDL3DI3
+Warning--empty year in FDL3DI3; set to ????
+Warning--empty pages in FDL3DI3
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry FDL3DI3
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--missing publisher in FDL3DI_B
+Warning--empty year in FDL3DI_B; set to ????
+Warning--empty pages in FDL3DI_B
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry FDL3DI_B
+while executing---line 1670 of file ../new-aiaa.bst
+Warning--empty pages in GPT
+Warning--empty journal in Kennedy_Carp
+Warning--missing publisher in HixonImplicit
+Warning--empty year in HixonImplicit; set to ????
+Warning--empty pages in HixonImplicit
+ptr=2, stack=
+
+????
+---the literal stack isn't empty for entry HixonImplicit
+while executing---line 1670 of file ../new-aiaa.bst
+You've used 39 entries,
+            3317 wiz_defined-function locations,
+            976 strings with 12586 characters,
+and the built_in function-call counts, 20867 in all, are:
+= -- 1523
+> -- 544
+< -- 85
++ -- 246
+- -- 158
+* -- 1709
+:= -- 2835
+add.period$ -- 92
+call.type$ -- 39
+change.case$ -- 158
+chr.to.int$ -- 40
+cite$ -- 74
+duplicate$ -- 1822
+empty$ -- 1824
+format.name$ -- 280
+if$ -- 4287
+int.to.chr$ -- 4
+int.to.str$ -- 40
+missing$ -- 313
+newline$ -- 155
+num.names$ -- 121
+pop$ -- 738
+preamble$ -- 1
+purify$ -- 156
+quote$ -- 0
+skip$ -- 686
+stack$ -- 0
+substring$ -- 1023
+swap$ -- 1041
+text.length$ -- 54
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 206
+warning$ -- 35
+while$ -- 117
+width$ -- 0
+write$ -- 461
+(There were 10 error messages)

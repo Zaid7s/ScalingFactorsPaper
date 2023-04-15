@@ -1,0 +1,220 @@
+\begin{thebibliography}{39}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{\discretionary{}{}{}https://doi.org/#1}\else
+  \providecommand{\doi}[1]{\discretionary{}{}{}\urlstyle{rm}\url{https://doi.org/#1}}\fi
+
+\bibitem[{Tam(1995)}]{Tam_General}
+Tam, C. K.~W., \enquote{Computational aeroacoustics - Issues and methods,}
+  \emph{AIAA J.}, Vol.~33, No.~10, 1995, pp. 1788--1796.
+\newblock \doi{10.2514/3.12728}.
+
+\bibitem[{Lele(1997)}]{Lele}
+Lele, S.~K., \enquote{Computational Aeroacoustics: A Review,} \emph{AIAA Paper
+  97-0018}, 1997.
+
+\bibitem[{Tam(2004)}]{Tam_OverView}
+Tam, C.~K., \enquote{Computational Aeroacoustics: An Overview of Computational
+  Challenges and Applications,} \emph{Int. J. Comp. Fluid Dyn.}, Vol.~18,
+  No.~6, 2004, pp. 547--567.
+\newblock \doi{10.1080/10618560410001673551}.
+
+\bibitem[{Colonius and Lele(2004)}]{COLONIUS2004345}
+Colonius, T., and Lele, S.~K., \enquote{Computational aeroacoustics: progress
+  on nonlinear problems of sound generation,} \emph{Prog. Aero. Sci.}, Vol.~40,
+  No.~6, 2004, pp. 345--416.
+\newblock \doi{https://doi.org/10.1016/j.paerosci.2004.09.001}.
+
+\bibitem[{Lomax et~al.(2003)Lomax, Pulliam, and Zingg}]{Pulliamm}
+Lomax, H., Pulliam, T., and Zingg, D., \emph{Fundamentals of Computational
+  Fluid Dynamics}, Scientific Computation, Springer Berlin Heidelberg, 2003.
+
+\bibitem[{Maccormack()}]{Maccormack}
+Maccormack, R., \emph{Current status of numerical solutions of the
+  Navier-Stokes equations}, chapter and pages.
+\newblock \doi{10.2514/6.1985-32}.
+
+\bibitem[{Yoon and Kwak(1990)}]{YoonLUSGS}
+Yoon, S., and Kwak, D., \enquote{Implicit Methods for the Navier-Stokes
+  Equations,} \emph{Computing Systems in Engineering}, Vol.~1, No.~2, 1990, pp.
+  535--547.
+\newblock \doi{https://doi.org/10.1016/0956-0521(90)90034-I}, computational
+  Technology for Flight Vehicles.
+
+\bibitem[{Rizzetta and Visbal(2005{\natexlab{a}})}]{A_Stable}
+Rizzetta, D.~P., and Visbal, M.~R., \enquote{Numerical Simulation of Separation
+  Control for Transitional Highly Loaded Low-Pressure Turbines,} \emph{AIAA
+  J.}, Vol.~43, No.~9, 2005{\natexlab{a}}, pp. 1958--1967.
+\newblock \doi{10.2514/1.12376}.
+
+\bibitem[{Beam and Warming(1978)}]{Beam}
+Beam, R.~M., and Warming, R.~F., \enquote{An Implicit Factored Scheme for the
+  Compressible Navier-Stokes Equations,} \emph{AIAA J.}, Vol.~16, No.~4, 1978,
+  pp. 393--402.
+\newblock \doi{10.2514/3.60901}.
+
+\bibitem[{Briley and McDonald()}]{Briley}
+Briley, W.~R., and McDonald, H., \enquote{Solution of the three-dimensional
+  compressible Navier-Stokes equations by an implicit technique,}
+  \emph{Proceedings of the Fourth International Conference on Numerical Methods
+  in Fluid Dynamics}, edited by R.~D. Richtmyer, Springer Berlin Heidelberg,
+  ????, pp. 105--110.
+
+\bibitem[{Pulliam(1994)}]{ARC2D}
+Pulliam, T., \enquote{ARC2D - Efficient Solution Methods For The Navier-Stokes
+  Equations (Cray Version),} 1994.
+
+\bibitem[{Pulliam and Steger()}]{ARC3D}
+Pulliam, T., and Steger, J., \emph{Recent Improvements In Efficiency, Accuracy,
+  and Convergence for Implicit Approximate Factorization Algorithms}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1985-360}.
+
+\bibitem[{Anderson et~al.()Anderson, Thomas, and Rumsey}]{CFL3D}
+Anderson, W., Thomas, J., and Rumsey, C., \emph{Extension and Applications of
+  Flux-Vector Splitting to Unsteady Calculations on Dynamic Meshes}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1987-1152}.
+
+\bibitem[{Kwak et~al.(1986)Kwak, Chang, Shanks, and Chakravarthy}]{INS3D}
+Kwak, D., Chang, J. L.~C., Shanks, S.~P., and Chakravarthy, S.~R., \enquote{A
+  Three-Dimensional Incompressible Navier-Stokes Flow Solver Using Primitive
+  Variables,} \emph{AIAA J.}, Vol.~24, No.~3, 1986, pp. 390--396.
+\newblock \doi{10.2514/3.9279}.
+
+\bibitem[{Derlaga et~al.()Derlaga, Jackson, and Buning}]{OVERFLOW}
+Derlaga, J.~M., Jackson, C.~W., and Buning, P.~G., \emph{Recent Progress in
+  OVERFLOW Convergence Improvements}, chapter and pages.
+\newblock \doi{10.2514/6.2020-1045}.
+
+\bibitem[{Yoon and Jameson(1988)}]{LUSGS}
+Yoon, S., and Jameson, A., \enquote{Lower-Upper Symmetric-Gauss-Seidel Method
+  for the Euler And Navier-Stokes Equations,} \emph{AIAA J.}, Vol.~26, No.~9,
+  1988, pp. 1025--1026.
+\newblock \doi{10.2514/3.10007}.
+
+\bibitem[{Heidmann et~al.(2005)Heidmann, Ameri, Rigby, Garg, Fabian, Lucci, and
+  Steinthorsson}]{GlennHT}
+Heidmann, J.~D., Ameri, A.~A., Rigby, D.~I., Garg, V.~K., Fabian, J.~C., Lucci,
+  B.~L., and Steinthorsson, E., \enquote{Object-Oriented Version of Glenn-HT
+  Code Released: Glenn-HT2000,} Sti, NASA Glenn Research Center Cleveland, OH,
+  United States, September 7, 2013 2005.
+
+\bibitem[{Jameson and Shankaran()}]{DualTimeStepping}
+Jameson, A., and Shankaran, S., \emph{An Assessment of Dual-Time Stepping, Time
+  Spectral and Artificial Compressibility Based Numerical Algorithms for
+  Unsteady Flow with Applications to Flapping Wings}, chapter and pages.
+\newblock \doi{10.2514/6.2009-4273}.
+
+\bibitem[{Jameson()}]{Dual_Time}
+Jameson, A., \emph{Time dependent calculations using multigrid, with
+  applications to unsteady flows past airfoils and wings}, chapter and pages.
+\newblock \doi{10.2514/6.1991-1596}.
+
+\bibitem[{Shieh and Morris()}]{Sheih}
+Shieh, C., and Morris, P., \emph{High-order accurate dual time-stepping
+  algorithm for viscous aeroacoustic simulations}, chapter and pages.
+\newblock \doi{10.2514/6.1998-2361}.
+
+\bibitem[{Lele(1992)}]{Lele2}
+Lele, S.~K., \enquote{Compact finite difference schemes with spectral-like
+  resolution,} \emph{J. Comp. Phys.}, Vol. 103, No.~1, 1992, pp. 16--42.
+\newblock \doi{https://doi.org/10.1016/0021-9991(92)90324-R}.
+
+\bibitem[{Tam and Webb(1993)}]{DRP}
+Tam, C.~K., and Webb, J.~C., \enquote{Dispersion-Relation-Preserving Finite
+  Difference Schemes for Computational Acoustics,} \emph{J. Comp. Phys.}, Vol.
+  107, No.~2, 1993, pp. 262--281.
+\newblock \doi{https://doi.org/10.1006/jcph.1993.1142}.
+
+\bibitem[{Liu et~al.(2008)Liu, Huang, Zhao, and Yuan}]{Optimized_Compact}
+Liu, Z., Huang, Q., Zhao, Z., and Yuan, J., \enquote{Optimized Compact Finite
+  Difference Schemes with High Accuracy and Maximum Resolution,} \emph{Int. J.
+  Aeroacoustics}, Vol.~7, No.~2, 2008, pp. 123--146.
+\newblock \doi{10.1260/147547208784649464}.
+
+\bibitem[{Hixon(2000{\natexlab{a}})}]{Prefactored}
+Hixon, R., \enquote{Prefactored Small-Stencil Compact Schemes,} \emph{J. Comp.
+  Phys.}, Vol. 165, No.~2, 2000{\natexlab{a}}, pp. 522--541.
+\newblock \doi{https://doi.org/10.1006/jcph.2000.6631}.
+
+\bibitem[{Visbal and Gaitonde({\natexlab{a}})}]{FDL3DI3}
+Visbal, M., and Gaitonde, D., \emph{Computation of aeroacoustic fields on
+  general geometries using compact differencing and filtering schemes}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1999-3706}.
+
+\bibitem[{Visbal and Gaitonde(2001)}]{FDL3DI_C}
+Visbal, M.~R., and Gaitonde, D.~V., \enquote{Very High-Order Spatially Implicit
+  Schemes for Computational Acoustics on Curvilinear Meshes,} \emph{J. Comp.
+  Acoustics}, Vol.~09, No.~04, 2001, pp. 1259--1286.
+\newblock \doi{10.1142/S0218396X01000541}.
+
+\bibitem[{Rizzetta and Visbal(2005{\natexlab{b}})}]{FDL3DI_A}
+Rizzetta, D.~P., and Visbal, M.~R., \enquote{Numerical Simulation of Separation
+  Control for Transitional Highly Loaded Low-Pressure Turbines,} \emph{AIAA
+  J.}, Vol.~43, No.~9, 2005{\natexlab{b}}, pp. 1958--1967.
+\newblock \doi{10.2514/1.12376}.
+
+\bibitem[{Visbal and Gaitonde({\natexlab{b}})}]{FDL3DI_B}
+Visbal, M., and Gaitonde, D., \emph{Computation of Aeroacoustic Fields on
+  General Geometries Using Compact Differencing and Filtering Schemes}, chapter
+  and pages.
+\newblock \doi{10.2514/6.1999-3706}.
+
+\bibitem[{Hixon(2019)}]{RDRP}
+Hixon, R., \enquote{Optimized Rational Dispersion Relation Preserving (R-DRP)
+  Method for High-Accuracy Flow Simulations,} \emph{Aeroacoustics}, 2019.
+\newblock \doi{10.2514/6.2019-2956}.
+
+\bibitem[{Hixon et~al.(2005)Hixon, Nallasamy, and Sawyer}]{GPT}
+Hixon, R., Nallasamy, M., and Sawyer, S., \enquote{A method for the
+  Implementation of Boundary Conditions in High-Accuracy Finite-Difference
+  Schemes,} \emph{AIAA Paper 2005-0608}, 2005.
+
+\bibitem[{Pulliam(1986)}]{Pulliam_Dissipation}
+Pulliam, T.~H., \enquote{Artificial dissipation models for the Euler
+  equations,} \emph{AIAA J.}, Vol.~24, No.~12, 1986, pp. 1931--1940.
+\newblock \doi{10.2514/3.9550}.
+
+\bibitem[{Hardin et~al.(1995)Hardin, Ristorcelli, and Tam}]{CAA1}
+Hardin, J.~C., Ristorcelli, J.~R., and Tam, C. K. W.~e. (eds.),
+  \emph{ICASE/LaRC Workshop on Benchmark Problems in Computational
+  Aeroacoustics (CAA)}, NASA Conference Publication 3300, 1995.
+
+\bibitem[{Tam and Hardin(1997)}]{CAA2}
+Tam, C. K.~W., and Hardin, J.~C. (eds.), \emph{Second Computational
+  Aeroacoustics (CAA) Workshop on Benchmark Problems}, NASA Conference
+  Publication 3352, 1997.
+
+\bibitem[{Dahl(2000)}]{CAA3}
+Dahl, M.~D. (ed.), \emph{Third Computational Aeroacoustics (CAA) Workshop on
+  Benchmark Problems}, NASA Conference Publication 2000-209790, 2000.
+
+\bibitem[{Hixon(2000{\natexlab{b}})}]{Hixon_PreFactor}
+Hixon, R., \enquote{Prefactored Small-Stencil Compact Schemes,} \emph{J. Comp.
+  Phys.}, Vol. 165, No.~2, 2000{\natexlab{b}}, pp. 522--541.
+\newblock \doi{https://doi.org/10.1006/jcph.2000.6631}.
+
+\bibitem[{Thompson(1987)}]{Thompson1}
+Thompson, K.~W., \enquote{Time Dependent Boundary Conditions for Hyperbolic
+  Dystems,} \emph{J. Comp. Phys.}, Vol.~68, No.~1, 1987, pp. 1--24.
+\newblock \doi{https://doi.org/10.1016/0021-9991(87)90041-6}.
+
+\bibitem[{Thompson(1990)}]{Thompson2}
+Thompson, K.~W., \enquote{Time-Dependent Boundary Conditions for Hyperbolic
+  Systems, II,} \emph{J. Comp. Phys.}, Vol.~89, 1990, pp. 439--461.
+
+\bibitem[{Kennedy and Carpenter(1998)}]{Kennedy_Carp}
+Kennedy, C., and Carpenter, M., \enquote{Comparison of Several Numerical
+  Methods for Simulation of Compressible Shear Layers,} 1998.
+
+\bibitem[{Hixon and Visbal()}]{HixonImplicit}
+Hixon, R., and Visbal, M., \emph{Comparison of High-Order Implicit Time
+  Marching Schemes for Unsteady Flow Calculations}, chapter and pages.
+\newblock \doi{10.2514/6.2007-4324}.
+
+\end{thebibliography}

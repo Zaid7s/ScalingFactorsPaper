@@ -1,0 +1,100 @@
+clc
+clear all
+
+Second_LUSGS_Off01      = importdata('LUSGS_LHS_Diss_Off_SecOrder_D_10_027_Max_Min_Pres.dat');
+Fourth_LUSGS_Off01      = importdata('LUSGS_LHS_Diss_Off_FouOrder_D_10_027_Max_Min_Pres.dat');
+Sixth_LUSGS_Off01       = importdata('LUSGS_LHS_Diss_Off_SixOrder_D_10_027_Max_Min_Pres.dat');
+RDRP_LUSGS_Off01        = importdata('LUSGS_LHS_Diss_Off_RDRPSten_D_10_027_Max_Min_Pres.dat');
+DRP_LUSGS_Off01         = importdata('LUSGS_LHS_Diss_Off__DRPSten_D_10_027_Max_Min_Pres.dat');
+Compact_LUSGS_Off01     = importdata('LUSGS_LHS_Diss_Off_Compact4_D_10_027_Max_Min_Pres.dat');
+% PreFac4_LUSGS_Off01     = importdata('LUSGS_LHS_Diss_Off_PreFac_4_D_10_027_Max_Min_Pres.dat');
+PreFac6_LUSGS_Off01     = importdata('LUSGS_LHS_Diss_Off_PreFac_6_D_10_027_Max_Min_Pres.dat');
+
+Exact       = importdata('CAT1P1.FIG1.DATA'); 
+
+%% LUSGS Scaling Factors
+figure(1)
+    plot(Second_LUSGS_Off01(:, 1), Second_LUSGS_Off01(:, 5),'-o','MarkerIndices',1:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Fourth_LUSGS_Off01(:, 1), Fourth_LUSGS_Off01(:, 5),'-x','MarkerIndices',5:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Sixth_LUSGS_Off01(:, 1), Sixth_LUSGS_Off01(:, 5),'-*','MarkerIndices',10:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(RDRP_LUSGS_Off01(:, 1), RDRP_LUSGS_Off01(:, 5),'-s','MarkerIndices',15:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(DRP_LUSGS_Off01(:, 1), DRP_LUSGS_Off01(:, 5),'-h','MarkerIndices',20:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Compact_LUSGS_Off01(:, 1), Compact_LUSGS_Off01(:, 5),'-d','MarkerIndices',25:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+%     plot(PreFac4_LUSGS_Off01(:, 1), PreFac4_LUSGS_Off01(:, 5),'-.','MarkerIndices',30:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+%     hold on
+    plot(PreFac6_LUSGS_Off01(:, 1), PreFac6_LUSGS_Off01(:, 5),'-p','MarkerIndices',35:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Exact(:, 1), Exact(:, 2),'-','MarkerIndices',20:40:length(Exact),'LineWidth', 1.5, 'Color', [0.25 0.25 0.25])
+    hold on
+    grid on
+    grid minor
+    xlim([-10 10])
+    legend('2^{nd} Order', '4^{th} Order', '6^{th} Order', 'RDRP', 'DRP', ...
+            '4^{th} Compact',  ...
+            '6^{th} Prefactored Compact', 'Exact','Location', 'Best')
+    xlabel('Domain')
+    ylabel('Maximum Pressure Perturbation')
+%     print(['LUSGS_ScalingFactors_C1P1_MaxMin'], '-depsc', '-r900')
+%% Zoomed In
+figure(2)
+subplot(1, 3, 1)
+    plot(Second_LUSGS_Off01(:, 1), Second_LUSGS_Off01(:, 5),'-o','MarkerIndices',1:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Fourth_LUSGS_Off01(:, 1), Fourth_LUSGS_Off01(:, 5),'-x','MarkerIndices',5:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Sixth_LUSGS_Off01(:, 1), Sixth_LUSGS_Off01(:, 5),'-*','MarkerIndices',10:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(RDRP_LUSGS_Off01(:, 1), RDRP_LUSGS_Off01(:, 5),'-s','MarkerIndices',15:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(DRP_LUSGS_Off01(:, 1), DRP_LUSGS_Off01(:, 5),'-h','MarkerIndices',20:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Compact_LUSGS_Off01(:, 1), Compact_LUSGS_Off01(:, 5),'-d','MarkerIndices',25:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+%     plot(PreFac4_LUSGS_Off01(:, 1), PreFac4_LUSGS_Off01(:, 5),'-|','MarkerIndices',30:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+%     hold on
+    plot(PreFac6_LUSGS_Off01(:, 1), PreFac6_LUSGS_Off01(:, 5),'-p','MarkerIndices',35:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Exact(:, 1), Exact(:, 2),'-','MarkerIndices',20:40:length(Exact),'LineWidth', 1.5, 'Color', [0.25 0.25 0.25])
+    hold on
+    grid on
+    grid minor
+    xlim([-10 10])
+    ylim([5*10^-6 12*10^-6])
+    xlabel('Domain')
+    ylabel('Maximum Pressure Perturbation')
+subplot(1, 3, 2)
+    plot(Second_LUSGS_Off01(:, 1), Second_LUSGS_Off01(:, 5),'-o','MarkerIndices',1:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Fourth_LUSGS_Off01(:, 1), Fourth_LUSGS_Off01(:, 5),'-x','MarkerIndices',5:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Sixth_LUSGS_Off01(:, 1), Sixth_LUSGS_Off01(:, 5),'-*','MarkerIndices',10:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(RDRP_LUSGS_Off01(:, 1), RDRP_LUSGS_Off01(:, 5),'-s','MarkerIndices',15:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(DRP_LUSGS_Off01(:, 1), DRP_LUSGS_Off01(:, 5),'-h','MarkerIndices',20:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Compact_LUSGS_Off01(:, 1), Compact_LUSGS_Off01(:, 5),'-d','MarkerIndices',25:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+%     plot(PreFac4_LUSGS_Off01(:, 1), PreFac4_LUSGS_Off01(:, 5),'-|','MarkerIndices',30:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+%     hold on
+    plot(PreFac6_LUSGS_Off01(:, 1), PreFac6_LUSGS_Off01(:, 5),'-p','MarkerIndices',35:40:length(Second_LUSGS_Off01),'LineWidth', 1.0)
+    hold on
+    plot(Exact(:, 1), Exact(:, 2),'-','MarkerIndices',20:40:length(Exact),'LineWidth', 1.5, 'Color', [0.25 0.25 0.25])
+    hold on
+    grid on
+    grid minor
+    xlim([-2 1])
+    ylim([0 1.2*10^-4])
+    xlabel('Domain')
+    ylabel('Maximum Pressure Perturbation')
+    legend('2^{nd} Order', '4^{th} Order', '6^{th} Order', 'RDRP', 'DRP', ...
+            '4^{th} Compact',  ...
+            '6^{th} Prefactored Compact', 'Exact','Location', 'bestoutside')
+    subplot(1, 3, 3)
+%     print(['LUSGS_ScalingFactors_C1P1_MaxMin_zoom'], '-depsc', '-r900')
