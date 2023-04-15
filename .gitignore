@@ -1,0 +1,17 @@
+-W
+*.DS_Store
+*.eps
+*.dat
+TestCases/*.dat
+*.mod
+*.o
+*.avi
+*.mp4
+*.asv
+*.pdf
+*.swp
+*.m
+Grid/*.eps
+Unsteady/*.eps
+run.exe
+fort.*
