@@ -1,8 +1,8 @@
-PROJECT = 'latex_and_Makefile' 
+PROJECT = 'ScalingFactors_Presentation' 
 
 LOG_File 		= $(shell mkdir -p LogFiles)
 
-MAIN = Latex_Presentation
+MAIN = ScalingFactors_Presentation
 
 SECTIONS := $(shell find Inputs/* -iname '*.tex' && find Inputs/* -iname '*.cls')
 

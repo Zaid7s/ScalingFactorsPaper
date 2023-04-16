@@ -11,6 +11,12 @@ TestCases/*.dat
 *.pdf
 *.swp
 *.m
+*.aux
+*.log
+*.nov
+*.out
+*.snm
+*.toc
 Grid/*.eps
 Unsteady/*.eps
 run.exe
