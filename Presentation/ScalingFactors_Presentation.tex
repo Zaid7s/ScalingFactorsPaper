@@ -19,7 +19,7 @@
         \item ODE are integrated in the temporal direction using numerical integration schemes to
           advance the flow in time.
         \item The effectiveness of numerical integration depends on convergence, accuracy, and
-          computational efficiency
+          computational efficiency.
       \end{itemize}   
   \end{columns}
 \end{frame}
@@ -59,8 +59,8 @@
       \item This process, known as time marching, can be used to obtain steady-state solutions 
             for steady flow problems and time-accurate solutions for unsteady flow problems.
       \item Time marching is subdivided into two schemes, \textbf{explicit} and \textbf{implicit}.
-      \item Explicit schemes can be relativley simple to implement, but may require excessive 
-            time steps due a bounded stability limit.
+      \item Explicit schemes can be relatively simple to implement but may require excessive 
+            time steps due to a bounded stability limit.
       \item When solving viscous flow problems where the computational domain must be highly 
             clustered near the body, the size of the time step an explicit scheme can take is 
             restricted by the CFL condition. 
@@ -74,7 +74,7 @@
   \begin{columns}
     \column{1.0\textwidth}
     \begin{itemize}
-      \item To derive the implicit time marching algorithim, the one-dimensional Euler equation 
+      \item To derive the implicit time marching algorithm, the one-dimensional Euler equation 
             can be written as:
  			\begin{equation}
 				\begin{split}
@@ -83,7 +83,7 @@
             +\left.\frac{\partial{E}}{\partial{x}}\right|^{n+1}~=~0
 				\end{split}
 			\end{equation}
-      \item Linearize the Taylor Series expansion of the fluxes, to rewrite the delta form of the
+      \item Linearize the Taylor Series expansion of the fluxes to rewrite the delta form of the
             equation as:
       \begin{equation}
         \underbrace{\left[I+\frac{\partial}{\partial{x}}\left(\Delta{t}\cdot
@@ -93,8 +93,8 @@
         \underbrace{\left\{\frac{\partial}{\partial{x}}\left(E_{i}^n
         \right)\right\}}_{\text{Physics}}            
       \end{equation}
-    \item Much research has focused on approximating the {\color{red}{Numerics}} due to complexities involved
-        with inverting an unfactored implicit scheme in multi-dimensions
+    \item Much research has focused on approximating the {\color{red}{Numerics}} due to complexities 
+        involved with inverting an unfactored implicit scheme in multi-dimensions.
     \end{itemize}   
   \end{columns}
 \end{frame}
@@ -104,16 +104,16 @@
   \column{1.0\textwidth}
     \begin{itemize}
       \item \textbf{Alternating Direction Implicit} (ADI) is a practical implicit scheme that 
-            approximately factorizes the implicit operator in delta form
-      \item The \textbf{Lower-Upper Symmetric-Gauss-Seidel} method (LU-SGS) is another commonn 
-          approximation where the numerics are preconditioned to a product of three matricie which 
-          provides computational efficiency
-      \item A preconditioner, psuedo-time derivative, can be added to the equations to accelerate
-        the time evolution scheme in the unsteady equation, an algorithim first proposed by Anthony
-        Jameson known as \textbf{Dual-Time Stepping}.
+            approximately factorizes the implicit operator in delta form.
+      \item The \textbf{Lower-Upper Symmetric-Gauss-Seidel} method (LU-SGS) is another common 
+          approximation where the numerics are preconditioned to a product of three matrices which 
+          provides computational efficiency.
+      \item A preconditioner, pseudo-time derivative, can be added to the equations to accelerate
+        the time evolution scheme in the unsteady equation, an algorithm first proposed by Anthony
+        Jameson is known as \textbf{Dual-Time Stepping}.
       \item Implicit time marching has been introduced with higher-order differencing stencils
             by Miguel Visbal and Datta Gaitonde from the Air Force Research Lab and Ohio State 
-            University, \textbf{FDL3DI}
+            University, \textbf{FDL3DI}.
     \end{itemize}  
   \end{columns}
 \end{frame}
@@ -128,13 +128,13 @@
   		  \left[I+\Delta{t}\left(\frac{A_{i+3}-8A_{i+2}+37A_{i+1}-37A_{i-1}+8A_{i-2}-A_{i-3}}
         {48\Delta{x}}\right)^{n+1,l}\right]\Delta{Q}_i~=~-\Delta{t}\left\{RHS\right\}_i^{n+1,l}$}
       \end{equation}
-      is preconditioned as:
+      Is preconditioned as follows:
       \begin{equation}
       	\label{eq:TriDi_NS}
         		\left[I+\Delta{t}\left(\frac{A_{i+1}-A_{i-1}}{2\Delta{x}}\right)^{n+1,l}\right]
             \Delta{Q}_i~=~-\Delta{t}\left\{RHS\right\}_i^{n+1, l}
       \end{equation}
-		  \item This will result in a more efficient solver since the number of diagonals have been 
+		  \item This will result in a more efficient solver since the number of diagonals has been 
             reduced.
     \end{itemize}  
   \end{columns}
@@ -153,7 +153,6 @@
       \end{equation}
       \begin{table}[htp!]
         \centering
-        %\caption{Periodic and Bounded Flow Scaling Factors}
         \resizebox{0.9\textwidth}{!}{%
         \begin{tabular}{|l|c|c|c|c|c|c|}
         \hline & 
@@ -182,7 +181,7 @@
     \column{0.5\textwidth}
       \begin{itemize}
         \item One Problem from the Third Computational Aeroacoustics (CAA) workshop is analyzed
-              to validate the work done
+              to validate the work done.
         \begin{equation*}
           \left(\begin{matrix}
               \frac{\partial{}}{\partial{t}} 
@@ -249,23 +248,22 @@
     \column{1.0\textwidth}
     \begin{table}[htp!]
     \centering
-    \caption{CFL Values for Category 1 Problem 1}
     \label{tab:C1P1_CFL}
-    \begin{tabular}{|l|c|c|c|c|c|c|}
-    \hline & \multicolumn{1}{c|}{\textbf{E2}} & 
-    \multicolumn{1}{c|}{\textbf{E4}} & 
-    \multicolumn{1}{c|}{\textbf{E6}} & 
-    \multicolumn{1}{c|}{\textbf{DRP}} & 
-    \multicolumn{1}{c|}{\textbf{RDRP}}& 
-    \multicolumn{1}{c|}{\textbf{C4}}\\ \hline
-    \textbf{$\nu_{physical}$} & 
-    \textit{12.521} & 
-    \textit{17.518} & 
-    \textit{19.858} & 
-    \textit{20.834} & 
-    \textit{20.834} & 
-    \textit{22.237}\\ \hline
-    \end{tabular}
+      \begin{tabular}{|l|c|c|c|c|c|c|}
+      \hline & \multicolumn{1}{c|}{\textbf{E2}} & 
+      \multicolumn{1}{c|}{\textbf{E4}} & 
+      \multicolumn{1}{c|}{\textbf{E6}} & 
+      \multicolumn{1}{c|}{\textbf{DRP}} & 
+      \multicolumn{1}{c|}{\textbf{RDRP}}& 
+      \multicolumn{1}{c|}{\textbf{C4}}\\ \hline
+      \textbf{$\nu_{physical}$} & 
+      \textit{12.521} & 
+      \textit{17.518} & 
+      \textit{19.858} & 
+      \textit{20.834} & 
+      \textit{20.834} & 
+      \textit{22.237}\\ \hline
+      \end{tabular}
     \end{table}
     ~~ \newline
     \begin{figure}[hbtp!]
@@ -284,7 +282,7 @@
     \begin{itemize}
       \item The present research aimed to establish a highly efficient implicit solver while
         using higher-order spatial differencing schemes. 
-      \item Through scaling factors, the LHS matrix was replaced with an easier to solve matrix,
+      \item Through scaling factors, the LHS matrix was replaced with an easier-to-solve matrix,
         cutting down on the computational work needed for the iterative steady-state solver. 
       \item Although the current study is based on one-dimensional problems, the findings
         suggest stability is possible if scaling factors are used on the LHS spatial difference.
@@ -305,7 +303,7 @@
         \end{itemize}
         \begin{block}{}
         	Zaid Sabri \\
-        	University of Toledo \\
+        	The University of Toledo \\
         	Toledo Ohio, 43606 USA \\
         	+1 (567)377-9009 \\
         	zaid.sabri@rockets.utoledo.edu
