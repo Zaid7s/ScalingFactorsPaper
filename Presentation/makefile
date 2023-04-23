@@ -40,6 +40,21 @@ clean:
 once: 
 	pdflatex $(MAIN).tex
 
+notes:
+	pdflatex Notes.tex
+	@mv *.{aux,log,out} LogFiles/
+	clear
+	@echo "				 											"
+	@echo "			!!!!!!!!!!!!!!!!!!!!!!!!!!!			"
+	@echo "			!!!!!Tex file compiled!!!!!			"
+	@echo "			!!!!!!!!!!!!!!!!!!!!!!!!!!!			"
+	@echo "															"
+	@echo "															"
+	@echo "			!!!!!!!!!!!!!!!!!!!!!!!!!!!			"
+	@echo "			!!!!!!!!Check .pdf!!!!!!!!!			"
+	@echo "			!!!!!!!!!!!!!!!!!!!!!!!!!!!			"
+	@echo "															"
+
 zip:
 	$(MAKE) clean
 	zip -q $(MAIN).zip $(TEX_SOURCES) $(FIGURES)

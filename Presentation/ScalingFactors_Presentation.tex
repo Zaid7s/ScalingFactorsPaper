@@ -29,7 +29,7 @@
   \column{0.5\textwidth}
     \begin{itemize}
       \item Derivative of flow fluxes can be expressed with values of the function at the 
-            neighboring point by using the Taylor series expansion. 
+            neighboring point by using the Taylor series expansion.  
       \item The spatial derivative is calculated using a \textbf{finite difference} approach.
       \begin{equation*}
 		    \begin{split}
@@ -121,6 +121,11 @@
 \begin{frame}{Implicit Time Marching - Preconditioning}
   \begin{columns}
   \column{1.0\textwidth}
+    \begin{equation*}
+      \left[I+\Delta{t}\cdot\frac{\partial}{\partial{x}}
+         \left(A\right)_{i}^{n+1,l}\right]\left\{\Delta{Q_{i}}\right\}~=~
+      -\Delta{t}\left\{RHS\right\}_i^{n+1,l}            
+    \end{equation*}
     \begin{itemize}
 		  \item Instead of using:
       \begin{equation}

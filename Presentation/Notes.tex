@@ -1,0 +1,200 @@
+\documentclass[a4paper,17pt]{extarticle}
+\usepackage[pdfpages,caption, subfig, table, xcdraw]{xcolor}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{xfrac}
+\usepackage{nicefrac}
+\usepackage{epstopdf}
+\usepackage{epstopdf}
+\usepackage[utf8x]{inputenc} 
+\usepackage{mathrsfs}
+%\usepackage[a4paper, total={7.0in, 9.5in}]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{mathtools}
+\linespread{1.5}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage[makeroom]{cancel}
+\usepackage{ulem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[math]{cellspace}
+\setcounter{MaxMatrixCols}{20}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usepackage{forest}
+\usetikzlibrary{positioning}
+
+\begin{document}
+
+\begin{titlepage}
+\title{Scaling Factors Paper Notes
+}
+
+\author{
+Zaid Sabri \\
+NASA, GRC-LTI0 \\
+Cleveland, OH  44113 \\
+zaid.h.sabri@nasa.gov }
+
+\maketitle
+\end{titlepage}
+
+\pagebreak \section*{Slide 1}
+\begin{itemize}
+   \item Hello everyone and welcome to my presentation where I'll be discussing "The efficiency og
+      Higher-Order Implicit Solvers for Compressible Flow"
+   \item My co-author on this work is Ray Hixon and we're both from the University of Toledo
+\end{itemize}
+
+\pagebreak \section*{Background - Slide 2}
+\begin{itemize}
+   \item Computational Fluid Dynamics (CFD) is the study of fluid mechanics that predicts fluid
+      flows using digital computers.
+   \item The analytical equations of fluid mechanics can be written in several forms, one of which
+      is a differential form that consists of partial derivatives with respect to space and time
+   \item In order to solve the equations, they are discretized in space, turning into Ordinary
+      Differential equations which can be integrated to advance the flow in time
+   \item The effectiveness of the time marching schemes depend on the convergence, accuracy and
+      computational efficiency
+   \item How much of a role are the numerical schemes effecting the solution? In order to answer
+      that question we must further analyze the numerical schemes
+\end{itemize}
+
+\pagebreak \section*{Spatial Derivative - Slide 3}
+\begin{itemize}
+   \item Using a finite difference approximation, the continuous problem domain is ”discretized”
+      so that the dependent variables are considered to exist only at discrete points
+   \item Taylor series expansion is used to obtain spatial derivatives on those structured grid
+      points which can then be used to derive derivative
+   \item On the other hand the numerical approximation does not come for free.
+   \item One issue we run into with finite differencing schemes is that we retain the exact
+      analytical derivative, however it is muliplied by an error which is also a function of the 
+      number of grid points used.
+   \item Ploting the error for various schemes that will be shown with the Figure on the right
+\end{itemize}
+
+\pagebreak \section*{Time Marching - Slide 4}
+\begin{itemize}
+   \item  Moving on to the time derivative
+   \item Starting with an initial state at time zero, given a boundary condition, we can 
+         ”march” one time-step to a time later and use a numerical scheme to evaluate the 
+         solution at that time.
+   \item This process, known as time marching, is subdivided into two schemes, \textbf{explicit} and
+      \textbf{implicit}.
+   \item Explicit schemes can be relatively simple to implement but may require excessive 
+         time steps due to a bounded stability limit.
+   \item When solving viscous flow problems where the computational domain must be highly 
+         clustered near the body, the size of the time step an explicit scheme can take is 
+         restricted by the CFL condition. 
+   \item The stability restriction can be eliminated by using an implicit time marching scheme.
+\end{itemize}
+
+\pagebreak \section*{Implicit Time Marching - Slide 5}
+\begin{itemize}
+   \item To derive the implicit time marching algorithm, we start with the  one-dimensional Euler
+      equation
+   \item We rewrite the equation in delta form and linearize the Taylor series expansion to get
+         what is shown in equation (2)
+   \item What this represents is the change of the flow variable {delta Q} as we move from 
+         one time step to another.
+   \item The RHS is a vector that represents an explicit approximation to the governing equation.
+   \item Thus Whatever is multiplying deltaQ on the LHS must be a square matrix, which is known as 
+         the numerics of the governing equation.
+   \item This form of the equation is known as an unfactored form of the time marching scheme.
+   \item The simplest way to solve this equation is by inverting the numerics and multiplying it by
+         the RHS. 
+   \item Due to the computational complexities faced with inverting the numerics, especially in 
+         multi-dimensions, much research has focused on approximating the Numerics
+\end{itemize}
+
+\pagebreak \section*{Implicit Time Marching - Prior Work - Slide 6}
+\begin{itemize}
+   \item Alternating Direction Implicit known as ADI was developed in in 1970s by Beam and Warming, 
+         is a practical implicit scheme that approximately factorizes the implicit operator in delta 
+         form. 
+   \item The idea there was the matrix was approximated as a product of two matricies, which
+         significantly cut down on the computational work needed. Widely disseminated codes such as
+         ARC2D/3D, CFL3D, INS3D, OVERFLOW and many more are based on the ADI scheme.
+   \item The Lower-Upper Symmetric-Gauss-Seidel method (LU-SGS) developed by Yoon and Jameson is 
+         another common approximation where the numerics are preconditioned to a product of three 
+         matrices which provides computational efficiency. 
+   \item LU-SGS is unconditionally stable in one, two, and three dimensions, unlike ADI, which is
+         conditionally stable in three dimensions. 
+   \item Implicit methods described above are computationally expensive not only in multidimensions
+         but also when using differencing stencils with high orders of accuracy.
+   \item However what if we use low order differences to approximate the numerics, while fixing
+      the physics of the governing equations to higher order differences
+\end{itemize}
+
+\pagebreak \section*{Implicit Time Marching - Preconditioning - Slide 7}
+\begin{itemize}
+   \item Let's say an optimized RDRP differencing stencil is used in the givering equation, the
+         unfactored form of the scheme is shown in equation (3)
+   \item But we can precondition the numerics using a low order differnce scheme as seen in equation
+         (4)
+   \item The practical upshot here is that a more efficient solver is present since the number of
+         diagonal on the matrix has been reduced.
+   \item Typically approximating a scheme yields additional error terms which can lead to
+         instability, however this can be counteracted by adding implicit dissipation to stabilize
+         the scheme. A computer code known as FDL3DI uses this approach
+\end{itemize}
+
+\pagebreak \section*{Stability - Slide 8}
+\begin{itemize}
+   \item The approach used in this investigation is similar to that used by FDL3DI; but instead of
+      adding dissipation to the numerics, stability is obtained here by scaling errors from the
+      numerics to overcome errors from the physics of the governing equations.
+   \item So the equation is approxumated one last time as seen in equation (5), where a sclaing
+         factor, sigma, multiplies the spatial difference on the LHS. 
+   \item Hence the scaling factor is physically insuring the numerical errors from the second-order
+         difference can overcome the numerical errors from the RHS differencing stencil
+   \item Values of the scaling factors for both a periodic and bounded flows are shown in the table 
+         below.
+\end{itemize}
+
+\pagebreak \section*{Numerical Results for Benchmark Problems - Slide 9}
+\begin{itemize}
+   \item To validate our conclusions, we’ll be looking at Cat- egory 1 problem 1 from the third
+      computational aeroacoustic workshop.
+   \item Problem 1 models the upstream propagation of sound through a nozzle with near sonic 
+         conditions.
+\end{itemize}
+
+\pagebreak \section*{Category 1 Problem 1, Steady State Results - Slide 10}
+\begin{itemize}
+   \item The steady mean-flow results are analyzed at first with the following conditions
+   \item Here the preconditioned matrix is tested tested against 6 different differencing stencils,
+      we have second fourth and sixth order scheme. DRP and RDPR are optimized scheme and a
+      Prefactored Fourth Order Compact Scheme is also present
+   \item Figure on the left evaluates the Domain vs Mean pressure. Notice that the steady results
+      for all scheme agree very well with the exact solution. More importantly the preconditioned
+      scheme are stable for steady-state results
+   \item Figure on the right evalues the number iterations vs Residual of the fluxes. 
+   \item As seen on the plot, a second order difference will converge quicker than a higher order 
+         difference
+   \item That is because the closer our RHS is to the LHS, the less of a factorization error we get
+\end{itemize}
+
+\pagebreak \section*{Category 1 Problem 1, Unsteady Results - Slide 11}
+\begin{itemize}
+   \item Once the steady mean-flow results are obtained, the upstream propagating perturbation
+         starts at the boundary, and the unsteady results are studied.
+   \item Here, a small amplitude acoustic wave is generated way downstream and propagate upstream
+      through the narrow passage of the nozzle throat
+   \item The figures shown are analyzing the periodic steady-state solutions. What I want to
+         highlight out of this figure is how the higher order schemes results agree with the exact
+         solution, but the low order scheme does not. The CFL used in this problem is shown in the
+         Table above, we're obtaining CFL as high as 22 for a prefactored compact scheme while fully
+         converging down to machine precision on each implicit solve. 
+\end{itemize}
+
+\end{document}
+
